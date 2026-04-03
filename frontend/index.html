@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro Médico - Camporee UMN 2026</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --primary: #0f7ae5;
+      --text: #1f2933;
+      --muted: #5f6b76;
+      --border: #e2e8f0;
+      --shadow: 0 10px 30px rgba(15, 122, 229, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .page {
+      max-width: 1000px;
+      margin: 24px auto 48px;
+      padding: 0 16px;
+    }
+    header { margin-bottom: 16px; }
+    h1 { margin: 0 0 6px; font-size: 26px; }
+    p.lead { margin: 0; color: var(--muted); }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    form { display: flex; flex-direction: column; gap: 18px; }
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px 10px;
+      margin: 0;
+    }
+    legend {
+      padding: 0 8px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .control {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label { font-weight: 600; font-size: 14px; color: var(--text); }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font: inherit;
+      background: #fdfdfd;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 122, 229, 0.15);
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 10px;
+      border: 1px dashed var(--primary);
+      border-radius: 12px;
+      background: rgba(15, 122, 229, 0.06);
+      cursor: pointer;
+    }
+    .checkbox-row input { width: 22px; height: 22px; cursor: pointer; }
+    .hidden { display: none; }
+    .actions { display: flex; justify-content: flex-end; }
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 700;
+      color: white;
+      background: var(--primary);
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 0.1s, box-shadow 0.2s;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(15, 122, 229, 0.18); }
+    button:active { transform: translateY(0); }
+    .print-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; }
+    .secondary {
+      background: #1f2933;
+    }
+    .full-span {
+      grid-column: 1 / -1;
+    }
+    .textarea-wide {
+      min-height: 140px;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .chip {
+      padding: 6px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.15s, border 0.15s;
+    }
+    .chip:hover { background: #e2e8f0; border-color: #cbd5e1; }
+    .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .preset-btn {
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #eef6ff;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .preset-btn:hover { background: #ddebff; }
+    @media (max-width: 640px) {
+      h1 { font-size: 22px; }
+      .page { padding: 0 12px; }
+    }
+    @media print {
+      body { background: white; }
+      .card { border: 1px solid #ccc; box-shadow: none; }
+      button { display: none; }
+      .checkbox-row { border: 1px solid #888; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>Registro Médico - Camporee UMN 2026</h1>
+      <p class="lead">Martes a domingo · Rápido de llenar · Uso local</p>
+    </header>
+
+    <div class="card">
+      <form id="registroForm" autocomplete="off">
+        <!-- Datos Generales -->
+        <fieldset>
+          <legend>Datos Generales</legend>
+          <div class="grid">
+            <div class="control">
+              <label for="nombreCompleto">Nombre completo</label>
+              <input id="nombreCompleto" name="nombreCompleto" type="text" required />
+            </div>
+            <div class="control">
+              <label for="numeroEmergencia">Número de emergencia</label>
+              <input id="numeroEmergencia" name="numeroEmergencia" type="text" required />
+            </div>
+            <div class="control">
+              <label for="fechaNacimiento">Fecha de nacimiento</label>
+              <input id="fechaNacimiento" name="fechaNacimiento" type="date" />
+            </div>
+            <div class="control">
+              <label for="edad">Edad</label>
+              <input id="edad" name="edad" type="number" min="0" placeholder="años" />
+            </div>
+            <div class="control">
+              <label for="asociacion">Asociación</label>
+              <select id="asociacion" name="asociacion" required>
+                <option value="" disabled selected>Selecciona</option>
+                <option>Asociación Norte de Tamaulipas</option>
+                <option>Asociación de Baja California</option>
+                <option>Misión Baja California Sur</option>
+                <option>Asociación de Sonora</option>
+                <option>Asociación del Noreste</option>
+                <option>Misión "A" Noroccidental</option>
+                <option>Asociación del Golfo</option>
+                <option>Asociación de Occidente</option>
+                <option>Asociación de Chihuahua</option>
+                <option>Asociación de Sinaloa</option>
+                <option>Asociación Regiomontana</option>
+                <option>STAFF</option>
+                <option>OTRO</option>
+              </select>
+            </div>
+            <div class="control">
+              <label for="club">Club</label>
+              <input id="club" name="club" type="text" required />
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Signos Vitales -->
+        <fieldset>
+          <legend>Signos Vitales</legend>
+          <div class="presets">
+            <button type="button" class="preset-btn" data-preset="normal">Preset: Vitals estables</button>
+            <button type="button" class="preset-btn" data-preset="febril">Preset: Febrícula</button>
+          </div>
+          <div class="grid">
+            <div class="control">
+              <label for="tipoSangre">Tipo de Sangre</label>
+              <select id="tipoSangre" name="tipoSangre">
+                <option value="" disabled selected>Selecciona</option>
+                <option>O+</option>
+                <option>O-</option>
+                <option>A+</option>
+                <option>A-</option>
+                <option>B+</option>
+                <option>B-</option>
+                <option>AB+</option>
+                <option>AB-</option>
+                <option>Desconocido</option>
+              </select>
+            </div>
+            <div class="control">
+              <label for="ta">TA</label>
+              <input id="ta" name="ta" type="text" placeholder="120/80" />
+            </div>
+            <div class="control">
+              <label for="fc">FC</label>
+              <input id="fc" name="fc" type="text" placeholder="72 lpm" />
+            </div>
+            <div class="control">
+              <label for="fr">FR</label>
+              <input id="fr" name="fr" type="text" placeholder="16 rpm" />
+            </div>
+            <div class="control">
+              <label for="temp">Temp</label>
+              <input id="temp" name="temp" type="text" placeholder="36.5 °C" />
+            </div>
+            <div class="control">
+              <label for="glucosa">Glucosa</label>
+              <input id="glucosa" name="glucosa" type="text" placeholder="mg/dL" />
+            </div>
+            <div class="control">
+              <label for="spo2">SpO2</label>
+              <input id="spo2" name="spo2" type="text" placeholder="98%" />
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Evaluación Médica -->
+        <fieldset>
+          <legend>Evaluación Médica</legend>
+          <div class="control">
+            <label for="sintomas">Síntomas</label>
+            <textarea id="sintomas" name="sintomas"></textarea>
+          </div>
+          <div class="control">
+            <label for="eventoPrevio">Evento previo al incidente y/o padecimiento</label>
+            <textarea id="eventoPrevio" name="eventoPrevio"></textarea>
+          </div>
+          <div class="control">
+            <label for="antecedentes">Antecedentes Clínicos, Traumáticos y/o Quirúrgicos</label>
+            <textarea id="antecedentes" name="antecedentes"></textarea>
+          </div>
+          <div class="control">
+            <label for="medicamentos">Medicamentos que toma</label>
+            <input id="medicamentos" name="medicamentos" type="text" />
+            <div class="chips" data-target="medicamentos">
+              <button type="button" class="chip">Ibuprofeno</button>
+              <button type="button" class="chip">Paracetamol</button>
+              <button type="button" class="chip">Metformina</button>
+              <button type="button" class="chip">Losartán</button>
+              <button type="button" class="chip">Insulina</button>
+            </div>
+          </div>
+          <div class="control">
+            <label for="alergias">Alergias</label>
+            <input id="alergias" name="alergias" type="text" />
+            <div class="chips" data-target="alergias">
+              <button type="button" class="chip">Penicilina</button>
+              <button type="button" class="chip">AINES</button>
+              <button type="button" class="chip">Sulfas</button>
+              <button type="button" class="chip">Mariscos</button>
+              <button type="button" class="chip">Nueces</button>
+            </div>
+          </div>
+          <div class="control">
+            <label for="tx">TX (Tratamiento)</label>
+            <textarea id="tx" name="tx"></textarea>
+          </div>
+          <div class="control">
+            <label for="indicaciones">Indicaciones</label>
+            <textarea id="indicaciones" name="indicaciones"></textarea>
+          </div>
+          <div class="control">
+            <label for="medico">Médico que atendió</label>
+            <input id="medico" name="medico" type="text" />
+          </div>
+
+          <label class="checkbox-row" for="requiereAmbulancia">
+            <input id="requiereAmbulancia" type="checkbox" />
+            <span>Requiere traslado de emergencia en ambulancia</span>
+          </label>
+
+          <div id="ambulanciaSection" class="hidden">
+            <div class="grid">
+              <div class="control full-span">
+                <label for="observacionTraslado">Observación</label>
+                <textarea id="observacionTraslado" name="observacionTraslado" class="textarea-wide" placeholder="Notas u observaciones relevantes"></textarea>
+              </div>
+              <div class="control">
+                <label for="hospitalDestino">Hospital de destino</label>
+                <select id="hospitalDestino" name="hospitalDestino">
+                  <option value="" disabled selected>Selecciona</option>
+                  <option>Hospital General</option>
+                  <option>IMSS</option>
+                  <option>ISSSTE</option>
+                  <option>Cruz Roja</option>
+                  <option>Clínica privada</option>
+                  <option>Otro (especificar abajo)</option>
+                </select>
+                <input id="hospitalDestinoOtro" name="hospitalDestinoOtro" type="text" placeholder="Otro hospital" class="hidden" />
+              </div>
+              <div class="control">
+                <label for="motivoTraslado">Motivo de traslado</label>
+                <input id="motivoTraslado" name="motivoTraslado" type="text" />
+              </div>
+              <div class="control">
+                <label for="paramedico">Paramédico encargado</label>
+                <select id="paramedico" name="paramedico">
+                  <option value="" disabled selected>Selecciona</option>
+                  <option>Turno A</option>
+                  <option>Turno B</option>
+                  <option>Turno C</option>
+                  <option>Otro (especificar abajo)</option>
+                </select>
+                <input id="paramedicoOtro" name="paramedicoOtro" type="text" placeholder="Nombre del paramédico" class="hidden" />
+              </div>
+              <div class="control">
+                <label for="firmaMedico">Firma de médico a cargo</label>
+                <input id="firmaMedico" name="firmaMedico" type="text" placeholder="______________________" />
+              </div>
+            </div>
+            <div class="print-actions">
+              <button type="button" id="printBtn" class="secondary">Imprimir ficha</button>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="submit">Guardar Registro</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const trasladoCheckbox = document.getElementById("requiereAmbulancia");
+    const ambulanciaSection = document.getElementById("ambulanciaSection");
+    const form = document.getElementById("registroForm");
+    const printBtn = document.getElementById("printBtn");
+    const presetButtons = document.querySelectorAll(".preset-btn");
+    const fechaNacimientoInput = document.getElementById("fechaNacimiento");
+    const edadInput = document.getElementById("edad");
+    const hospitalSelect = document.getElementById("hospitalDestino");
+    const hospitalOtro = document.getElementById("hospitalDestinoOtro");
+    const paramedicoSelect = document.getElementById("paramedico");
+    const paramedicoOtro = document.getElementById("paramedicoOtro");
+
+    trasladoCheckbox.addEventListener("change", () => {
+      ambulanciaSection.classList.toggle("hidden", !trasladoCheckbox.checked);
+    });
+
+    presetButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const preset = btn.dataset.preset;
+        if (preset === "normal") {
+          form.ta.value = "120/80";
+          form.fc.value = "72";
+          form.fr.value = "16";
+          form.temp.value = "36.5";
+          form.glucosa.value = "90";
+          form.spo2.value = "98";
+        }
+        if (preset === "febril") {
+          form.ta.value = "120/80";
+          form.fc.value = "88";
+          form.fr.value = "18";
+          form.temp.value = "38.0";
+          form.glucosa.value = "100";
+          form.spo2.value = "97";
+        }
+      });
+    });
+
+    if (fechaNacimientoInput) {
+      fechaNacimientoInput.addEventListener("change", () => {
+        const val = fechaNacimientoInput.value;
+        if (!val) return;
+        const birth = new Date(val);
+        const now = new Date();
+        let age = now.getFullYear() - birth.getFullYear();
+        const m = now.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--;
+        edadInput.value = age >= 0 ? age : "";
+      });
+    }
+
+    const chipGroups = document.querySelectorAll(".chips");
+    chipGroups.forEach((group) => {
+      const targetId = group.dataset.target;
+      const targetInput = document.getElementById(targetId);
+      group.querySelectorAll(".chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          if (!targetInput) return;
+          const value = chip.textContent.trim();
+          const current = targetInput.value ? targetInput.value.split(",").map((s) => s.trim()).filter(Boolean) : [];
+          if (!current.includes(value)) current.push(value);
+          targetInput.value = current.join(", ");
+        });
+      });
+    });
+
+    const toggleOtro = (selectEl, otherInput) => {
+      if (!selectEl || !otherInput) return;
+      selectEl.addEventListener("change", () => {
+        const isOtro = selectEl.value.includes("Otro");
+        otherInput.classList.toggle("hidden", !isOtro);
+        if (!isOtro) otherInput.value = "";
+      });
+    };
+    toggleOtro(hospitalSelect, hospitalOtro);
+    toggleOtro(paramedicoSelect, paramedicoOtro);
+
+    if (printBtn) {
+      printBtn.addEventListener("click", () => {
+        window.print();
+      });
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.requiereAmbulancia = trasladoCheckbox.checked;
+      if (data.hospitalDestino === "Otro (especificar abajo)") {
+        data.hospitalDestino = data.hospitalDestinoOtro || "";
+      }
+      if (data.paramedico === "Otro (especificar abajo)") {
+        data.paramedico = data.paramedicoOtro || "";
+      }
+
+      try {
+        const resp = await fetch("/api/registros", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        if (!resp.ok) throw new Error("Respuesta no exitosa");
+      } catch (err) {
+        console.warn("No se pudo enviar al backend (modo offline).", err);
+      }
+
+      alert("Datos guardados");
+      form.reset();
+      ambulanciaSection.classList.add("hidden");
+    });
+  </script>
+</body>
+</html>

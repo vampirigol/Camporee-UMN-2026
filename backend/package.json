@@ -1,0 +1,17 @@
+{
+  "name": "camporee-registro-medico",
+  "version": "1.0.0",
+  "description": "API local para registro médico Camporee UMN 2026",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.3.2",
+    "helmet": "^7.1.0",
+    "sqlite3": "^5.1.7"
+  }
+}
