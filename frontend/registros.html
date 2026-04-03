@@ -77,12 +77,13 @@ nav {
 .stat-icon {
   width: 46px; height: 46px; border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; flex-shrink: 0;
+  flex-shrink: 0;
 }
-.stat-icon.blue   { background: #dbeafe; }
-.stat-icon.green  { background: #d1fae5; }
-.stat-icon.purple { background: #ede9fe; }
-.stat-icon.red    { background: #fee2e2; }
+.stat-icon.blue   { background: #dbeafe; color: #2563eb; }
+.stat-icon.green  { background: #d1fae5; color: #059669; }
+.stat-icon.purple { background: #ede9fe; color: #7c3aed; }
+.stat-icon.red    { background: #fee2e2; color: #dc2626; }
+.pac-meta span { display: flex; align-items: center; gap: 3px; }
 .stat-num  { font-size: 26px; font-weight: 800; line-height: 1; color: var(--text); }
 .stat-label { font-size: 11px; color: var(--muted); font-weight: 600; margin-top: 3px; text-transform: uppercase; letter-spacing: .4px; }
 
@@ -294,7 +295,7 @@ select.filter:focus { outline: none; border-color: var(--primary); }
   text-align: center; padding: 64px 0; color: var(--muted);
   background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
 }
-.empty-state .big { font-size: 48px; margin-bottom: 12px; }
+.empty-state .big { margin-bottom: 12px; display: flex; justify-content: center; opacity: .45; }
 .loading-state { text-align: center; padding: 48px; color: var(--muted); }
 .spinner {
   width: 32px; height: 32px; margin: 0 auto 14px;
@@ -513,7 +514,8 @@ select.filter:focus { outline: none; border-color: var(--primary); }
       <div class="edit-section">Traslado de Emergencia</div>
       <label class="edit-traslado-toggle">
         <input type="checkbox" id="e_requiereAmbulancia" onchange="document.getElementById('e_trasladoFields').classList.toggle('visible',this.checked)" />
-        🚑 Requiere traslado de emergencia en ambulancia
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Requiere traslado de emergencia en ambulancia
       </label>
       <div id="e_trasladoFields" class="edit-traslado-fields">
         <div class="edit-grid" style="margin-top:12px;">
@@ -540,19 +542,27 @@ select.filter:focus { outline: none; border-color: var(--primary); }
   <!-- Stats -->
   <div class="stats-row">
     <div class="stat-card">
-      <div class="stat-icon blue">👥</div>
+      <div class="stat-icon blue">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
       <div><div class="stat-num" id="sPacientes">—</div><div class="stat-label">Pacientes</div></div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon green">📋</div>
+      <div class="stat-icon green">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+      </div>
       <div><div class="stat-num" id="sConsultas">—</div><div class="stat-label">Consultas totales</div></div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon purple">📅</div>
+      <div class="stat-icon purple">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
       <div><div class="stat-num" id="sHoy">—</div><div class="stat-label">Hoy</div></div>
     </div>
     <div class="stat-card">
-      <div class="stat-icon red">🚑</div>
+      <div class="stat-icon red">
+        <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </div>
       <div><div class="stat-num" id="sTraslados">—</div><div class="stat-label">Traslados</div></div>
     </div>
   </div>
@@ -646,7 +656,7 @@ async function loadPacientes() {
     doFilter();
   } catch (e) {
     document.getElementById('listContainer').innerHTML =
-      '<div class="empty-state"><div class="big">⚠️</div><p>Error al cargar datos.</p></div>';
+      `<div class="empty-state"><div class="big"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><p>Error al cargar datos.</p></div>`;
   }
 }
 
@@ -674,7 +684,7 @@ function doFilter() {
 function renderList(list) {
   const cont = document.getElementById('listContainer');
   if (!list.length) {
-    cont.innerHTML = '<div class="empty-state"><div class="big">🔍</div><p>No se encontraron pacientes.</p></div>';
+    cont.innerHTML = `<div class="empty-state"><div class="big"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><p>No se encontraron pacientes.</p></div>`;
     return;
   }
   cont.innerHTML = list.map(p => pacCard(p)).join('');
@@ -716,10 +726,10 @@ function pacCard(p) {
       <div class="pac-info">
         <div class="pac-nombre">${esc(p.nombre_completo)}</div>
         <div class="pac-meta">
-          ${p.asociacion ? `<span>📍 ${esc(p.asociacion)}</span>` : ''}
-          ${p.club && p.club !== 'N/D' ? `<span>🏕 ${esc(p.club)}</span>` : ''}
-          ${p.tipo_sangre ? `<span>🩸 ${esc(p.tipo_sangre)}</span>` : ''}
-          <span>🕐 ${fmtDate(p.ultima_consulta)}</span>
+          ${p.asociacion ? `<span><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${esc(p.asociacion)}</span>` : ''}
+          ${p.club && p.club !== 'N/D' ? `<span><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3.5 21L12 4l8.5 17H3.5z"/></svg> ${esc(p.club)}</span>` : ''}
+          ${p.tipo_sangre ? `<span><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> ${esc(p.tipo_sangre)}</span>` : ''}
+          <span><svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${fmtDate(p.ultima_consulta)}</span>
         </div>
       </div>
       <div class="pac-badges">
@@ -908,11 +918,11 @@ function fichaHTML(pid, c, num) {
             <div class="f-val">${v(c.medicamentos)}</div>
           </div>
           <div class="f-field span3">
-            <span class="f-label">🔷 Diagnóstico</span>
+            <span class="f-label">Diagnóstico</span>
             <div class="f-val hi">${v(c.diagnostico)}</div>
           </div>
           <div class="f-field span3">
-            <span class="f-label">💊 Tratamiento (TX) / Medicamentos recetados</span>
+            <span class="f-label">Tratamiento (TX) / Medicamentos recetados</span>
             <div class="f-val hi">${v(c.tx)}</div>
           </div>
           ${c.indicaciones ? `
@@ -927,7 +937,10 @@ function fichaHTML(pid, c, num) {
       ${hasTraslado ? `
       <div class="ficha-block">
         <div class="transfer-box">
-          <div class="transfer-head">🚑 Traslado de Emergencia en Ambulancia</div>
+          <div class="transfer-head">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            Traslado de Emergencia en Ambulancia
+          </div>
           <div class="transfer-body">
             <div class="info-grid">
               ${hospital ? `<div class="f-field"><span class="f-label">Hospital de destino</span><div class="f-val">${esc(hospital)}</div></div>` : ''}
@@ -1109,7 +1122,7 @@ function printConsulta(pid, num, consultas) {
 <!-- Letterhead -->
 <div class="lh">
   <div class="lh-left">
-    <div class="lh-logo">🏕</div>
+    <div class="lh-logo"><svg width="28" height="28" fill="none" stroke="#fff" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3.5 21L12 4l8.5 17H3.5z"/><path d="M9 21v-5a3 3 0 0 1 6 0v5"/></svg></div>
     <div>
       <div class="lh-org">Unión Mexicana del Norte · IASD</div>
       <div class="lh-event">Camporee de Conquistadores UMN 2026</div>
@@ -1177,7 +1190,7 @@ function printConsulta(pid, num, consultas) {
   ${hasT ? `
   <div class="sec">
     <div class="tbox">
-      <div class="thead">🚑 Traslado de Emergencia en Ambulancia</div>
+      <div class="thead"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:6px"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>Traslado de Emergencia en Ambulancia</div>
       <div class="tbody">
         <div class="g3">
           ${hospital   ? `<div class="f"><label>Hospital de destino</label><div class="v">${pv(hospital)}</div></div>` : ''}

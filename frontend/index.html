@@ -114,6 +114,7 @@ textarea { resize: vertical; min-height: 72px; }
   background: #f1f5f9; border: 1.5px solid var(--border);
   border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600;
   color: var(--muted); cursor: pointer; transition: background .15s, border-color .15s;
+  display: inline-flex; align-items: center; gap: 5px;
 }
 .preset-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 
@@ -132,6 +133,7 @@ button {
   border: none; border-radius: 10px; padding: 11px 20px;
   font: inherit; font-size: 15px; font-weight: 600;
   cursor: pointer; transition: background .15s, transform .1s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
 }
 button:active { transform: scale(.98); }
 .btn-primary { background: var(--primary); color: #fff; }
@@ -331,10 +333,22 @@ button:active { transform: scale(.98); }
     <div class="card">
       <div class="section-title">Signos Vitales</div>
       <div class="presets">
-        <button type="button" class="preset-btn" data-preset="normal">⚡ Vitales normales</button>
-        <button type="button" class="preset-btn" data-preset="febril">🌡 Febrícula</button>
-        <button type="button" class="preset-btn" data-preset="hta">❤️ HTA leve</button>
-        <button type="button" class="preset-btn" data-preset="limpiar">✕ Limpiar</button>
+        <button type="button" class="preset-btn" data-preset="normal">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Vitales normales
+        </button>
+        <button type="button" class="preset-btn" data-preset="febril">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+          Febrícula
+        </button>
+        <button type="button" class="preset-btn" data-preset="hta">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          HTA leve
+        </button>
+        <button type="button" class="preset-btn" data-preset="limpiar">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Limpiar
+        </button>
       </div>
       <div class="vitals-grid">
         <div class="control">
@@ -442,7 +456,10 @@ button:active { transform: scale(.98); }
     <div class="card">
       <label class="checkbox-row">
         <input type="checkbox" id="trasladoCheck" name="requiereAmbulancia" />
-        <span>🚑 Requiere traslado de emergencia en ambulancia</span>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          Requiere traslado de emergencia en ambulancia
+        </span>
       </label>
 
       <div class="ambulancia-section" id="ambulanciaSection">
@@ -486,7 +503,10 @@ button:active { transform: scale(.98); }
           </div>
         </div>
         <div class="print-actions">
-          <button type="button" class="btn-secondary" onclick="window.print()">🖨 Imprimir ficha de traslado</button>
+          <button type="button" class="btn-secondary" onclick="window.print()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Imprimir ficha de traslado
+          </button>
         </div>
       </div>
     </div>
@@ -494,7 +514,8 @@ button:active { transform: scale(.98); }
     <!-- Actions -->
     <div class="actions">
       <button type="submit" class="btn-primary" style="flex:1; padding:14px;">
-        💾 Guardar Registro
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Guardar Registro
       </button>
       <button type="button" class="btn-secondary" onclick="resetForm()">
         Nueva consulta
@@ -514,7 +535,9 @@ function showToast(msg, type = 'success') {
   const el  = document.getElementById('toast');
   const ico = document.getElementById('toastIcon');
   document.getElementById('toastMsg').textContent = msg;
-  ico.textContent = type === 'success' ? '✓' : '✕';
+  ico.innerHTML = type === 'success'
+    ? '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>'
+    : '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
   el.className = `toast ${type} show`;
   clearTimeout(_toastTimer);
   _toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
@@ -647,7 +670,7 @@ document.getElementById('regForm').addEventListener('submit', async e => {
   };
 
   const btn = f.querySelector('[type="submit"]');
-  btn.disabled = true; btn.textContent = 'Guardando…';
+  btn.disabled = true; btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Guardando…';
   try {
     const res  = await fetch(`${API_BASE}/api/registros`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -664,7 +687,7 @@ document.getElementById('regForm').addEventListener('submit', async e => {
   } catch (err) {
     showToast(err.message, 'error');
   } finally {
-    btn.disabled = false; btn.textContent = '💾 Guardar Registro';
+    btn.disabled = false; btn.innerHTML = '<svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Guardar Registro';
   }
 });
 
@@ -774,14 +797,14 @@ function createAutocomplete({ inputId, dropId, tipo, icon, getExtraParams }) {
 }
 
 const acClub = createAutocomplete({
-  inputId: 'club', dropId: 'acClub', tipo: 'club', icon: '🏕',
+  inputId: 'club', dropId: 'acClub', tipo: 'club', icon: '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M3.5 21L12 4l8.5 17H3.5z"/></svg>',
   getExtraParams: () => {
     const asoc = document.getElementById('asociacion').value;
     return asoc ? { asociacion: asoc } : {};
   }
 });
 
-createAutocomplete({ inputId: 'medico', dropId: 'acMedico', tipo: 'medico', icon: '🩺' });
+createAutocomplete({ inputId: 'medico', dropId: 'acMedico', tipo: 'medico', icon: '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>' });
 
 // Al cambiar la asociación: limpiar club y refrescar sus sugerencias
 document.getElementById('asociacion').addEventListener('change', function () {
