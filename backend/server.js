@@ -6,13 +6,44 @@ const express = require("express");
 const helmet = require("helmet");
 const cors = require("cors");
 const rateLimit = require("express-rate-limit");
-const sqlite3 = require("sqlite3").verbose();
+const { Pool } = require("pg");
 
 const PORT = process.env.PORT || 3000;
 const ROOT_DIR = path.join(__dirname, "..");
 const FRONTEND_DIR = path.join(ROOT_DIR, "frontend");
-const DB_PATH = path.join(__dirname, "camporee.db");
 const SCHEMA_PATH = path.join(__dirname, "models", "schema.sql");
+
+const {
+  DATABASE_URL,
+  PGHOST,
+  PGPORT,
+  PGUSER,
+  PGPASSWORD,
+  PGDATABASE,
+  PGSSLMODE,
+} = process.env;
+
+const connectionString =
+  DATABASE_URL ||
+  (PGHOST &&
+    `postgresql://${encodeURIComponent(PGUSER)}:${encodeURIComponent(
+      PGPASSWORD
+    )}@${PGHOST}:${PGPORT || 5432}/${PGDATABASE}`);
+
+if (!connectionString) {
+  console.error(
+    "No se encontró cadena de conexión a Postgres. Define DATABASE_URL o variables PGHOST/PGUSER/PGPASSWORD/PGDATABASE."
+  );
+  process.exit(1);
+}
+
+const pool = new Pool({
+  connectionString,
+  ssl:
+    PGSSLMODE === "require" || (connectionString && connectionString.includes("sslmode=require"))
+      ? { rejectUnauthorized: false }
+      : undefined,
+});
 
 const app = express();
 
@@ -38,44 +69,16 @@ app.use(
 
 app.use(express.static(FRONTEND_DIR));
 
-// DB setup
-const db = new sqlite3.Database(DB_PATH);
-const ensureSchema = () => {
-  const ddl = fs.readFileSync(SCHEMA_PATH, "utf8");
-  db.exec(ddl, (err) => {
-    if (err) {
-      console.error("Error al aplicar schema:", err.message);
-    }
-  });
-};
-ensureSchema();
-
-// Asegura columnas nuevas en caso de DB ya existente
-const addColumnIfMissing = (col, type) => {
-  db.get(
-    `PRAGMA table_info(registros)`,
-    [],
-    (err /* row not used */) => {
-      if (err) return console.error("PRAGMA error:", err.message);
-      db.all(`PRAGMA table_info(registros)`, [], (e, rows) => {
-        if (e) return console.error("PRAGMA error:", e.message);
-        const exists = rows.some((r) => r.name === col);
-        if (!exists) {
-          db.run(`ALTER TABLE registros ADD COLUMN ${col} ${type}`, (alterErr) => {
-            if (alterErr) console.error(`No se pudo añadir columna ${col}:`, alterErr.message);
-          });
-        }
-      });
-    }
-  );
-};
-
-["fechaNacimiento TEXT", "edad INTEGER", "tipoSangre TEXT", "observacionTraslado TEXT", "firmaMedico TEXT"].forEach(
-  (colSpec) => {
-    const [name, ...typeParts] = colSpec.split(" ");
-    addColumnIfMissing(name, typeParts.join(" "));
+const ensureSchema = async () => {
+  try {
+    const ddl = fs.readFileSync(SCHEMA_PATH, "utf8");
+    await pool.query(ddl);
+    console.log("Schema verificado/aplicado en Postgres.");
+  } catch (err) {
+    console.error("Error al aplicar schema en Postgres:", err.message);
+    throw err;
   }
-);
+};
 
 const normalizeText = (value) => {
   if (value === undefined || value === null) return "";
@@ -86,15 +89,17 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, status: "healthy" });
 });
 
-app.get("/api/registros", (_req, res) => {
-  const sql = "SELECT * FROM registros ORDER BY created_at DESC LIMIT 200";
-  db.all(sql, [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
+app.get("/api/registros", async (_req, res) => {
+  try {
+    const sql = "SELECT * FROM registros ORDER BY created_at DESC LIMIT 200";
+    const { rows } = await pool.query(sql);
     res.json(rows);
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-app.post("/api/registros", (req, res) => {
+app.post("/api/registros", async (req, res) => {
   const body = req.body || {};
 
   const payload = {
@@ -119,7 +124,7 @@ app.post("/api/registros", (req, res) => {
     tx: normalizeText(body.tx),
     indicaciones: normalizeText(body.indicaciones),
     medico: normalizeText(body.medico),
-    requiereAmbulancia: body.requiereAmbulancia ? 1 : 0,
+    requiereAmbulancia: body.requiereAmbulancia ? true : false,
     observacionTraslado: normalizeText(body.observacionTraslado),
     hospitalDestino: normalizeText(body.hospitalDestino),
     motivoTraslado: normalizeText(body.motivoTraslado),
@@ -146,7 +151,14 @@ app.post("/api/registros", (req, res) => {
       sintomas, eventoPrevio, antecedentes, medicamentos, alergias,
       tx, indicaciones, medico,
       requiereAmbulancia, observacionTraslado, hospitalDestino, motivoTraslado, paramedico, firmaMedico
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+    ) VALUES (
+      $1,$2,$3,$4,
+      $5,$6,$7,
+      $8,$9,$10,$11,$12,$13,
+      $14,$15,$16,$17,$18,
+      $19,$20,$21,
+      $22,$23,$24,$25,$26,$27
+    ) RETURNING id
   `;
 
   const values = [
@@ -154,41 +166,53 @@ app.post("/api/registros", (req, res) => {
     payload.numeroEmergencia,
     payload.asociacion,
     payload.club,
-    payload.fechaNacimiento,
-    payload.edad,
-    payload.tipoSangre,
-    payload.ta,
-    payload.fc,
-    payload.fr,
-    payload.temp,
-    payload.glucosa,
-    payload.spo2,
-    payload.sintomas,
-    payload.eventoPrevio,
-    payload.antecedentes,
-    payload.medicamentos,
-    payload.alergias,
-    payload.tx,
-    payload.indicaciones,
-    payload.medico,
+    payload.fechaNacimiento || null,
+    payload.edad !== null ? payload.edad : null,
+    payload.tipoSangre || null,
+    payload.ta || null,
+    payload.fc || null,
+    payload.fr || null,
+    payload.temp || null,
+    payload.glucosa || null,
+    payload.spo2 || null,
+    payload.sintomas || null,
+    payload.eventoPrevio || null,
+    payload.antecedentes || null,
+    payload.medicamentos || null,
+    payload.alergias || null,
+    payload.tx || null,
+    payload.indicaciones || null,
+    payload.medico || null,
     payload.requiereAmbulancia,
-    payload.observacionTraslado,
-    payload.hospitalDestino,
-    payload.motivoTraslado,
-    payload.paramedico,
-    payload.firmaMedico,
+    payload.observacionTraslado || null,
+    payload.hospitalDestino || null,
+    payload.motivoTraslado || null,
+    payload.paramedico || null,
+    payload.firmaMedico || null,
   ];
 
-  db.run(insertSQL, values, function (err) {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ ok: true, id: this.lastID });
-  });
+  try {
+    const result = await pool.query(insertSQL, values);
+    res.json({ ok: true, id: result.rows[0].id });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.use((req, res) => {
   res.status(404).json({ error: "Ruta no encontrada" });
 });
 
-app.listen(PORT, () => {
-  console.log(`API escuchando en http://localhost:${PORT}`);
-});
+const start = async () => {
+  try {
+    await ensureSchema();
+    app.listen(PORT, () => {
+      console.log(`API escuchando en http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error("No se pudo iniciar la API:", err.message);
+    process.exit(1);
+  }
+};
+
+start();

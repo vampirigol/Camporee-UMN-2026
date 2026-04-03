@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "cd backend && npm install"
+buildCommand = "cd backend && npm config set cache /tmp/npm-cache --global && npm ci --prefer-offline --no-audit --progress=false"
 
 [deploy]
 startCommand = "cd backend && npm start"
