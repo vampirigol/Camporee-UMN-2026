@@ -58,6 +58,22 @@ const normName = (name) =>
 // ─── Health ───────────────────────────────────────────────────────────────────
 app.get("/health", (_req, res) => res.json({ ok: true, status: "healthy" }));
 
+// ─── Stats ────────────────────────────────────────────────────────────────────
+app.get("/api/stats", async (_req, res) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT
+        (SELECT COUNT(*)::int FROM pacientes) AS total_pacientes,
+        (SELECT COUNT(*)::int FROM registros) AS total_consultas,
+        (SELECT COUNT(*)::int FROM registros WHERE created_at >= CURRENT_DATE) AS hoy,
+        (SELECT COUNT(*)::int FROM registros WHERE requiereAmbulancia = TRUE) AS traslados
+    `);
+    res.json(rows[0]);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ─── Registros (legacy) ───────────────────────────────────────────────────────
 app.get("/api/registros", async (_req, res) => {
   try {

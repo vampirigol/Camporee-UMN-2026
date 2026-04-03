@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Registros · Camporee UMN 2026</title>
+<style>
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --success: #10b981;
+  --danger: #ef4444;
+  --warn: #f59e0b;
+  --purple: #7c3aed;
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #1e293b;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --radius: 12px;
+  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── Nav ───────────────────────────────────────────────── */
+nav {
+  background: #1e293b;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+.nav-brand {
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 14px 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-links { display: flex; }
+.nav-link {
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 16px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color .15s, background .15s;
+  border-bottom: 3px solid transparent;
+}
+.nav-link:hover { color: #fff; background: rgba(255,255,255,.06); }
+.nav-link.active { color: #fff; border-bottom-color: var(--primary); }
+
+/* ── Layout ────────────────────────────────────────────── */
+.page { max-width: 1100px; margin: 0 auto; padding: 28px 16px 60px; }
+
+/* ── Stats row ─────────────────────────────────────────── */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+@media (max-width: 700px) { .stats-row { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 400px) { .stats-row { grid-template-columns: 1fr; } }
+
+.stat-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.stat-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.stat-icon.blue   { background: #eff6ff; }
+.stat-icon.green  { background: #ecfdf5; }
+.stat-icon.purple { background: #f5f3ff; }
+.stat-icon.red    { background: #fef2f2; }
+.stat-num  { font-size: 28px; font-weight: 800; line-height: 1; }
+.stat-label { font-size: 12px; color: var(--muted); font-weight: 600; margin-top: 2px; }
+
+/* ── Toolbar ───────────────────────────────────────────── */
+.toolbar {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-wrap { position: relative; flex: 1; min-width: 200px; }
+.search-wrap svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.search-wrap input {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 12px 9px 36px;
+  font: inherit; font-size: 14px;
+  transition: border-color .2s;
+}
+.search-wrap input:focus { outline: none; border-color: var(--primary); }
+
+select.filter {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font: inherit; font-size: 14px;
+  background: #fff; color: var(--text);
+  cursor: pointer;
+}
+select.filter:focus { outline: none; border-color: var(--primary); }
+
+.btn-refresh {
+  background: var(--primary); color: #fff;
+  border: none; border-radius: 10px;
+  padding: 9px 16px; font: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .15s;
+}
+.btn-refresh:hover { background: var(--primary-dark); }
+
+.result-count { font-size: 13px; color: var(--muted); width: 100%; margin-top: -4px; }
+
+/* ── Patient cards ─────────────────────────────────────── */
+.list-container { display: flex; flex-direction: column; gap: 12px; }
+
+.pac-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 1.5px solid var(--border);
+  transition: border-color .2s;
+}
+.pac-card:hover { border-color: #94a3b8; }
+
+.pac-header {
+  padding: 16px 20px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  cursor: pointer; gap: 12px; flex-wrap: wrap;
+}
+.pac-header:hover { background: #f8fafc; }
+
+.pac-avatar {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 800; font-size: 16px;
+  flex-shrink: 0;
+}
+.pac-info { flex: 1; min-width: 0; }
+.pac-nombre { font-weight: 700; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pac-meta { font-size: 12px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; margin-top: 3px; }
+.pac-meta span { display: flex; align-items: center; gap: 3px; }
+
+.pac-badges { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.badge {
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 12px; font-weight: 700;
+}
+.badge-blue   { background: #eff6ff; color: var(--primary); }
+.badge-green  { background: #ecfdf5; color: #065f46; }
+.badge-red    { background: #fef2f2; color: var(--danger); }
+.chevron { color: var(--muted); font-size: 12px; transition: transform .2s; }
+.pac-card.open .chevron { transform: rotate(180deg); }
+
+/* ── Consultas list ─────────────────────────────────────── */
+.consultas-wrap { display: none; border-top: 1.5px solid var(--border); }
+.pac-card.open .consultas-wrap { display: block; }
+
+.consulta-tab-bar {
+  display: flex; gap: 0;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  padding: 0 20px;
+}
+.consulta-tab {
+  padding: 10px 16px; font-size: 13px; font-weight: 700;
+  color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent;
+  white-space: nowrap; transition: color .15s, border-color .15s;
+}
+.consulta-tab:hover { color: var(--text); }
+.consulta-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+.consulta-panels { padding: 0; }
+.consulta-panel { display: none; padding: 24px; }
+.consulta-panel.active { display: block; }
+
+/* ── Ficha detail ──────────────────────────────────────── */
+.ficha-section { margin-bottom: 24px; }
+.ficha-title {
+  font-size: 11px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: .7px; color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+  padding-bottom: 6px; margin-bottom: 14px;
+}
+
+.ficha-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+.ficha-field label {
+  display: block; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px;
+  color: var(--muted); margin-bottom: 4px;
+}
+.ficha-field .val {
+  font-size: 14px; color: var(--text); line-height: 1.4;
+  padding: 8px 10px; background: #f8fafc; border-radius: 8px; min-height: 36px;
+}
+.ficha-field .val.empty { color: var(--muted); font-style: italic; }
+.ficha-field.span-full { grid-column: 1 / -1; }
+.ficha-field.key .val { background: #eff6ff; font-weight: 600; color: var(--primary-dark); }
+.ficha-field.warn .val { background: #fef2f2; font-weight: 600; color: var(--danger); }
+
+/* ── Vitals strip ──────────────────────────────────────── */
+.vitals-row {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+}
+.vital {
+  background: #f1f5f9; border: 1.5px solid var(--border);
+  border-radius: 10px; padding: 10px 14px; text-align: center; min-width: 80px;
+}
+.vital-lbl { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--muted); }
+.vital-val { font-size: 18px; font-weight: 800; color: var(--text); }
+
+/* ── Traslado section ──────────────────────────────────── */
+.traslado-box {
+  background: #fef2f2; border: 2px solid #fecaca;
+  border-radius: var(--radius); padding: 18px;
+  margin-top: 16px;
+}
+.traslado-title { font-weight: 800; color: var(--danger); margin-bottom: 12px; }
+
+/* ── Action buttons ────────────────────────────────────── */
+.ficha-actions {
+  display: flex; gap: 10px; padding: 0 24px 20px;
+  border-top: 1px solid var(--border); padding-top: 16px;
+  flex-wrap: wrap;
+}
+.btn {
+  border: none; border-radius: 8px; padding: 9px 18px;
+  font: inherit; font-size: 13px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .15s;
+}
+.btn-outline {
+  background: #f1f5f9; color: var(--text);
+}
+.btn-outline:hover { background: var(--border); }
+.btn-print {
+  background: #1e293b; color: #fff;
+}
+.btn-print:hover { background: #0f172a; }
+.btn-success {
+  background: var(--success); color: #fff;
+}
+.btn-success:hover { background: #059669; }
+
+/* ── Empty state ───────────────────────────────────────── */
+.empty {
+  text-align: center; padding: 64px 0; color: var(--muted);
+  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+}
+.empty .emoji { font-size: 48px; margin-bottom: 12px; }
+.empty p { font-size: 16px; }
+
+/* ── Loading ───────────────────────────────────────────── */
+.loading { text-align: center; padding: 48px; color: var(--muted); }
+.spinner {
+  width: 36px; height: 36px; border: 4px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%; animation: spin .7s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Toast ─────────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+  background: #1e293b; color: #fff;
+  border-radius: 12px; padding: 14px 20px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 14px; font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  transition: opacity .3s, transform .3s;
+  opacity: 0; transform: translateY(20px); pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.toast.success { border-left: 4px solid var(--success); }
+.toast.error   { border-left: 4px solid var(--danger); }
+
+/* ── Print ─────────────────────────────────────────────── */
+@media print {
+  nav, .toolbar, .stats-row, .consulta-tab-bar, .ficha-actions,
+  .pac-header, .consultas-wrap .pac-header { display: none !important; }
+  .pac-card { box-shadow: none !important; border: 1px solid #ccc !important; }
+  .consulta-panel { display: block !important; }
+  body { background: #fff; }
+  .page { padding: 0; max-width: 100%; }
+  .pac-card { break-inside: avoid; margin-bottom: 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">
+    🏥 Camporee UMN 2026
+  </div>
+  <div class="nav-links">
+    <a class="nav-link" href="index.html">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
+      Nuevo Registro
+    </a>
+    <a class="nav-link active" href="registros.html">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <line x1="3" y1="9" x2="21" y2="9"/>
+        <line x1="3" y1="15" x2="21" y2="15"/>
+        <line x1="9" y1="3" x2="9" y2="21"/>
+      </svg>
+      Ver Registros
+    </a>
+  </div>
+</nav>
+
+<div id="toast" class="toast success">
+  <span id="toastMsg">Cargando…</span>
+</div>
+
+<div class="page">
+
+  <!-- Stats -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card">
+      <div class="stat-icon blue">👥</div>
+      <div><div class="stat-num" id="sPacientes">—</div><div class="stat-label">Pacientes</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon green">📋</div>
+      <div><div class="stat-num" id="sConsultas">—</div><div class="stat-label">Consultas totales</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon purple">📅</div>
+      <div><div class="stat-num" id="sHoy">—</div><div class="stat-label">Hoy</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon red">🚑</div>
+      <div><div class="stat-num" id="sTraslados">—</div><div class="stat-label">Traslados</div></div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg width="15" height="15" fill="none" stroke="#94a3b8" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Buscar por nombre de paciente…" oninput="doFilter()" />
+    </div>
+    <select class="filter" id="filterAsoc" onchange="doFilter()">
+      <option value="">Todas las asociaciones</option>
+      <option>Asociación Norte de Tamaulipas</option>
+      <option>Asociación de Baja California</option>
+      <option>Misión Baja California Sur</option>
+      <option>Asociación de Sonora</option>
+      <option>Asociación del Noreste</option>
+      <option>Misión "A" Noroccidental</option>
+      <option>Asociación del Golfo</option>
+      <option>Asociación de Occidente</option>
+      <option>Asociación de Chihuahua</option>
+      <option>Asociación de Sinaloa</option>
+      <option>Asociación Regiomontana</option>
+      <option>STAFF</option>
+      <option>OTRO</option>
+    </select>
+    <select class="filter" id="filterSangre" onchange="doFilter()">
+      <option value="">Todos los tipos de sangre</option>
+      <option>A+</option><option>A-</option>
+      <option>B+</option><option>B-</option>
+      <option>AB+</option><option>AB-</option>
+      <option>O+</option><option>O-</option>
+    </select>
+    <button class="btn-refresh" onclick="init()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path d="M23 4v6h-6M1 20v-6h6"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+      </svg>
+      Actualizar
+    </button>
+    <div class="result-count" id="resultCount"></div>
+  </div>
+
+  <!-- List -->
+  <div id="listContainer">
+    <div class="loading"><div class="spinner"></div><p>Cargando registros…</p></div>
+  </div>
+
+</div>
+
+<script>
+const API_BASE = window.location.pathname.startsWith('/camporeemedical') ? '/camporeemedical' : '';
+
+let allPacientes = [];
+let consultasCache = {};
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+let toastTimer = null;
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  el.className = `toast ${type} show`;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+  loadStats();
+  await loadPacientes();
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch(`${API_BASE}/api/stats`);
+    const s = await r.json();
+    document.getElementById('sPacientes').textContent = s.total_pacientes ?? '—';
+    document.getElementById('sConsultas').textContent = s.total_consultas ?? '—';
+    document.getElementById('sHoy').textContent       = s.hoy ?? '—';
+    document.getElementById('sTraslados').textContent = s.traslados ?? '—';
+  } catch (_) {}
+}
+
+async function loadPacientes() {
+  document.getElementById('listContainer').innerHTML =
+    '<div class="loading"><div class="spinner"></div><p>Cargando registros…</p></div>';
+  try {
+    const r = await fetch(`${API_BASE}/api/pacientes`);
+    allPacientes = await r.json();
+    doFilter();
+  } catch (e) {
+    document.getElementById('listContainer').innerHTML =
+      '<div class="empty"><div class="emoji">⚠️</div><p>Error al cargar datos. Verifica la conexión.</p></div>';
+  }
+}
+
+// ── Filter ────────────────────────────────────────────────────────────────────
+function doFilter() {
+  const q     = document.getElementById('searchInput').value.toLowerCase().trim();
+  const asoc  = document.getElementById('filterAsoc').value;
+  const sangre = document.getElementById('filterSangre').value;
+
+  const filtered = allPacientes.filter(p => {
+    const nombre = (p.nombre_completo || '').toLowerCase();
+    if (q && !nombre.includes(q)) return false;
+    if (asoc && p.asociacion !== asoc) return false;
+    if (sangre && p.tipo_sangre !== sangre) return false;
+    return true;
+  });
+
+  const cnt = document.getElementById('resultCount');
+  cnt.textContent = filtered.length === allPacientes.length
+    ? `${allPacientes.length} paciente(s) registrado(s)`
+    : `${filtered.length} de ${allPacientes.length} pacientes`;
+
+  renderList(filtered);
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderList(list) {
+  const cont = document.getElementById('listContainer');
+  if (!list.length) {
+    cont.innerHTML = '<div class="empty"><div class="emoji">🔍</div><p>No se encontraron pacientes con ese criterio.</p></div>';
+    return;
+  }
+  cont.innerHTML = list.map(p => pacCard(p)).join('');
+}
+
+function initials(nombre) {
+  return (nombre || '?').split(' ').filter(Boolean).slice(0, 2)
+    .map(w => w[0].toUpperCase()).join('');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('es-MX', {
+    day: '2-digit', month: 'short', year: 'numeric'
+  });
+}
+
+function fmtDateTime(iso) {
+  if (!iso) return '—';
+  return new Date(iso).toLocaleDateString('es-MX', {
+    weekday: 'short', day: '2-digit', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
+
+function pacCard(p) {
+  const id = p.id;
+  const tabs = Array.from({ length: p.total_consultas || 0 }, (_, i) =>
+    `<div class="consulta-tab ${i === 0 ? 'active' : ''}" onclick="switchTab(${id},${i+1})" id="tab-${id}-${i+1}">
+      Consulta #${i+1}
+    </div>`
+  ).join('');
+  const panels = Array.from({ length: p.total_consultas || 0 }, (_, i) =>
+    `<div class="consulta-panel ${i === 0 ? 'active' : ''}" id="panel-${id}-${i+1}">
+      <div class="loading"><div class="spinner"></div><p>Cargando…</p></div>
+    </div>`
+  ).join('');
+
+  return `
+  <div class="pac-card" id="pac-${id}">
+    <div class="pac-header" onclick="togglePac(${id})">
+      <div class="pac-avatar">${esc(initials(p.nombre_completo))}</div>
+      <div class="pac-info">
+        <div class="pac-nombre">${esc(p.nombre_completo)}</div>
+        <div class="pac-meta">
+          ${p.asociacion ? `<span>📍 ${esc(p.asociacion)}</span>` : ''}
+          ${p.club ? `<span>🏕 ${esc(p.club)}</span>` : ''}
+          ${p.tipo_sangre ? `<span>🩸 ${esc(p.tipo_sangre)}</span>` : ''}
+          ${p.fecha_nacimiento ? `<span>🎂 ${esc(p.fecha_nacimiento)}</span>` : ''}
+          <span>🕐 Última: ${fmtDate(p.ultima_consulta)}</span>
+        </div>
+      </div>
+      <div class="pac-badges">
+        <span class="badge badge-blue">${p.total_consultas} consulta(s)</span>
+        <span class="chevron">▼</span>
+      </div>
+    </div>
+    <div class="consultas-wrap">
+      ${p.total_consultas > 0 ? `
+        <div class="consulta-tab-bar">${tabs}</div>
+        <div class="consulta-panels">${panels}</div>
+      ` : '<div style="padding:20px;color:var(--muted);">Sin consultas registradas.</div>'}
+    </div>
+  </div>`;
+}
+
+// ── Toggle patient expand ─────────────────────────────────────────────────────
+async function togglePac(id) {
+  const card = document.getElementById(`pac-${id}`);
+  const wasOpen = card.classList.contains('open');
+  card.classList.toggle('open', !wasOpen);
+  if (!wasOpen) await loadConsultas(id);
+}
+
+async function loadConsultas(id) {
+  if (consultasCache[id]) {
+    renderConsultas(id, consultasCache[id]);
+    return;
+  }
+  try {
+    const r = await fetch(`${API_BASE}/api/pacientes/${id}/consultas`);
+    const data = await r.json();
+    consultasCache[id] = data;
+    renderConsultas(id, data);
+  } catch (e) {
+    toast('Error al cargar consultas', 'error');
+  }
+}
+
+function renderConsultas(id, consultas) {
+  consultas.forEach((c, i) => {
+    const num = c.numero_consulta || (i + 1);
+    const panel = document.getElementById(`panel-${id}-${num}`);
+    if (!panel) return;
+    panel.innerHTML = fichaHTML(id, c, num);
+  });
+}
+
+// ── Tab switch ────────────────────────────────────────────────────────────────
+function switchTab(pacId, num) {
+  const tabs   = document.querySelectorAll(`[id^="tab-${pacId}-"]`);
+  const panels = document.querySelectorAll(`[id^="panel-${pacId}-"]`);
+  tabs.forEach(t => t.classList.remove('active'));
+  panels.forEach(p => p.classList.remove('active'));
+  const t = document.getElementById(`tab-${pacId}-${num}`);
+  const p = document.getElementById(`panel-${pacId}-${num}`);
+  if (t) t.classList.add('active');
+  if (p) p.classList.add('active');
+}
+
+// ── Ficha HTML ────────────────────────────────────────────────────────────────
+function fichaHTML(pacId, c, num) {
+  const v = (val, fallback = '—') => val && String(val).trim() ? esc(String(val).trim()) : `<span class="empty">${fallback}</span>`;
+
+  const vitals = [
+    { lbl: 'TA', val: c.ta || c.tensionar, unit: 'mmHg' },
+    { lbl: 'FC', val: c.fc, unit: 'lpm' },
+    { lbl: 'FR', val: c.fr, unit: 'rpm' },
+    { lbl: 'Temp', val: c.temp, unit: '°C' },
+    { lbl: 'Glucosa', val: c.glucosa, unit: 'mg/dL' },
+    { lbl: 'SpO₂', val: c.spo2, unit: '%' },
+  ].filter(vt => vt.val);
+
+  const hasTraslado = c.requiereambulancia || c.requiereAmbulancia;
+  const hospital = c.hospitaldestino || c.hospitalDestino || '';
+  const motivo = c.motivotraslado || c.motivoTraslado || '';
+  const paramedico = c.paramedico || '';
+  const firma = c.firmamedico || c.firmaMedico || '';
+  const obs = c.observaciontraslado || c.observacionTraslado || '';
+
+  return `
+  <div>
+    <div class="consulta-panel active" style="display:block;" id="panel-${pacId}-${num}">
+
+      <!-- Header info -->
+      <div class="ficha-section">
+        <div class="ficha-title">📋 Consulta #${num} · ${fmtDateTime(c.created_at)}</div>
+        <div class="ficha-grid">
+          <div class="ficha-field"><label>Nombre completo</label><div class="val">${v(c.nombrecompleto || c.nombreCompleto)}</div></div>
+          <div class="ficha-field"><label>Fecha de nacimiento</label><div class="val">${v(c.fechanacimiento || c.fechaNacimiento)}</div></div>
+          <div class="ficha-field"><label>Edad</label><div class="val">${v(c.edad)}</div></div>
+          <div class="ficha-field"><label>Tipo de sangre</label><div class="val">${v(c.tiposangre || c.tipoSangre)}</div></div>
+          <div class="ficha-field"><label>Asociación</label><div class="val">${v(c.asociacion)}</div></div>
+          <div class="ficha-field"><label>Club</label><div class="val">${v(c.club)}</div></div>
+          <div class="ficha-field"><label>Número de emergencia</label><div class="val">${v(c.numeroemergencia || c.numeroEmergencia)}</div></div>
+          <div class="ficha-field"><label>Médico que atendió</label><div class="val">${v(c.medico)}</div></div>
+        </div>
+      </div>
+
+      <!-- Vitals -->
+      ${vitals.length ? `
+      <div class="ficha-section">
+        <div class="ficha-title">🩺 Signos Vitales</div>
+        <div class="vitals-row">
+          ${vitals.map(vt => `
+          <div class="vital">
+            <div class="vital-lbl">${vt.lbl}</div>
+            <div class="vital-val">${esc(vt.val)}</div>
+            <div class="vital-lbl">${vt.unit}</div>
+          </div>`).join('')}
+        </div>
+      </div>` : ''}
+
+      <!-- Medical eval -->
+      <div class="ficha-section">
+        <div class="ficha-title">🔬 Evaluación Médica</div>
+        <div class="ficha-grid">
+          <div class="ficha-field span-full"><label>Síntomas</label><div class="val">${v(c.sintomas)}</div></div>
+          <div class="ficha-field span-full"><label>Evento previo / motivo de consulta</label><div class="val">${v(c.eventoprevio || c.eventoPrevio)}</div></div>
+          <div class="ficha-field span-full"><label>Antecedentes clínicos</label><div class="val">${v(c.antecedentes)}</div></div>
+          <div class="ficha-field"><label>Alergias</label><div class="val warn">${v(c.alergias)}</div></div>
+          <div class="ficha-field"><label>Medicamentos que toma</label><div class="val">${v(c.medicamentos)}</div></div>
+          <div class="ficha-field span-full key"><label>🔷 Diagnóstico</label><div class="val">${v(c.diagnostico)}</div></div>
+          <div class="ficha-field span-full key"><label>💊 Tratamiento (TX)</label><div class="val">${v(c.tx)}</div></div>
+          <div class="ficha-field span-full"><label>Indicaciones</label><div class="val">${v(c.indicaciones)}</div></div>
+        </div>
+      </div>
+
+      <!-- Transfer -->
+      ${hasTraslado ? `
+      <div class="ficha-section">
+        <div class="traslado-box">
+          <div class="traslado-title">🚑 Traslado de Emergencia en Ambulancia</div>
+          <div class="ficha-grid">
+            ${hospital ? `<div class="ficha-field"><label>Hospital de destino</label><div class="val">${esc(hospital)}</div></div>` : ''}
+            ${motivo ? `<div class="ficha-field"><label>Motivo de traslado</label><div class="val">${esc(motivo)}</div></div>` : ''}
+            ${paramedico ? `<div class="ficha-field"><label>Paramédico encargado</label><div class="val">${esc(paramedico)}</div></div>` : ''}
+            ${firma ? `<div class="ficha-field"><label>Firma de médico</label><div class="val">${esc(firma)}</div></div>` : ''}
+            ${obs ? `<div class="ficha-field span-full"><label>Observación del traslado</label><div class="val">${esc(obs)}</div></div>` : ''}
+          </div>
+        </div>
+      </div>` : ''}
+
+    </div>
+
+    <!-- Actions -->
+    <div class="ficha-actions">
+      <button class="btn btn-print" onclick="printConsulta(${pacId}, ${num})">
+        🖨 Imprimir ficha #${num}
+      </button>
+      <button class="btn btn-outline" onclick="copyResumen(${pacId}, ${num})">
+        📋 Copiar resumen
+      </button>
+      <a class="btn btn-success" href="index.html" style="text-decoration:none;">
+        ✚ Nueva consulta
+      </a>
+    </div>
+  </div>`;
+}
+
+// ── Print single consulta ─────────────────────────────────────────────────────
+function printConsulta(pacId, num) {
+  const panel = document.getElementById(`panel-${pacId}-${num}`);
+  const name  = document.querySelector(`#pac-${pacId} .pac-nombre`)?.textContent || 'Paciente';
+  const w = window.open('', '_blank', 'width=900,height=700');
+  w.document.write(`<!DOCTYPE html><html lang="es"><head>
+    <meta charset="UTF-8"/>
+    <title>Ficha Médica – ${name} – Consulta #${num}</title>
+    <style>
+      body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 32px; color: #1e293b; }
+      h1 { font-size: 18px; margin-bottom: 4px; }
+      .sub { color: #64748b; font-size: 13px; margin-bottom: 24px; }
+      .sec { margin-bottom: 20px; }
+      .sec-title { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .7px;
+        color: #2563eb; border-bottom: 2px solid #2563eb; padding-bottom: 5px; margin-bottom: 12px; }
+      .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+      .field label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+        color: #64748b; margin-bottom: 3px; }
+      .field .val { font-size: 13px; padding: 6px 8px; background: #f8fafc; border-radius: 6px; min-height: 30px; }
+      .span-full { grid-column: 1 / -1; }
+      .key .val { background: #eff6ff; font-weight: 600; }
+      .traslado { background: #fef2f2; border: 2px solid #fecaca; border-radius: 10px; padding: 16px; }
+      .traslado-title { font-weight: 800; color: #ef4444; margin-bottom: 10px; }
+      .vitals { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+      .vital { background: #f1f5f9; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 70px; }
+      .vlbl { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #64748b; }
+      .vval { font-size: 16px; font-weight: 800; }
+      footer { margin-top: 32px; border-top: 1px solid #e2e8f0; padding-top: 12px; font-size: 11px; color: #94a3b8; }
+    </style>
+  </head><body>
+    <h1>Ficha Médica · Camporee UMN 2026</h1>
+    <div class="sub">Consulta #${num} · ${fmtDateTime(new Date().toISOString())}</div>
+    ${panel.outerHTML.replace(/class="val warn"/g,'class="val"').replace(/class="val key"/g,'class="val key"')}
+    <footer>Clínica de Atención de Emergencias · Camporee de Conquistadores UMN 2026</footer>
+  </body></html>`);
+  w.document.close();
+  w.focus();
+  setTimeout(() => { w.print(); }, 600);
+}
+
+// ── Copy resumen ──────────────────────────────────────────────────────────────
+async function copyResumen(pacId, num) {
+  const consultas = consultasCache[pacId] || [];
+  const c = consultas.find(x => (x.numero_consulta || 1) === num);
+  if (!c) return;
+  const txt = [
+    `📋 CONSULTA #${num} · Camporee UMN 2026`,
+    `👤 Paciente: ${c.nombrecompleto || c.nombreCompleto || '—'}`,
+    `📍 Asociación: ${c.asociacion || '—'} | Club: ${c.club || '—'}`,
+    `🩺 Síntomas: ${c.sintomas || '—'}`,
+    `🔷 Diagnóstico: ${c.diagnostico || '—'}`,
+    `💊 TX: ${c.tx || '—'}`,
+    `📌 Indicaciones: ${c.indicaciones || '—'}`,
+    `👨‍⚕️ Médico: ${c.medico || '—'}`,
+    `📅 Fecha: ${fmtDateTime(c.created_at)}`,
+  ].join('\n');
+  try {
+    await navigator.clipboard.writeText(txt);
+    toast('Resumen copiado al portapapeles ✓');
+  } catch (_) {
+    toast('No se pudo copiar', 'error');
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function esc(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// ── Start ─────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
