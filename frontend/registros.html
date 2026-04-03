@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Registros · Camporee UMN 2026</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <style>
 :root {
   --primary: #2563eb;
@@ -29,27 +30,35 @@ body {
 
 /* ── Nav ──────────────────────────────────────────────────────── */
 nav {
-  background: #0f172a; padding: 0 28px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+  padding: 0 28px;
   display: flex; align-items: center;
   position: sticky; top: 0; z-index: 100;
-  box-shadow: 0 2px 16px rgba(0,0,0,.25);
+  box-shadow: 0 2px 12px rgba(0,0,0,.35);
+  min-height: 60px;
 }
 .nav-brand {
-  color: #fff; font-weight: 800; font-size: 15px;
-  padding: 15px 0; flex: 1; display: flex; align-items: center; gap: 10px;
-  letter-spacing: -.2px;
+  flex: 1; display: flex; align-items: center; gap: 12px;
+  text-decoration: none;
 }
-.nav-brand span { color: #60a5fa; }
+.nav-logo {
+  height: 42px; width: 42px; object-fit: contain;
+  border-radius: 8px;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,.5));
+}
+.nav-brand-text { display: flex; flex-direction: column; line-height: 1.25; }
+.nav-brand-title { font-size: 15px; font-weight: 800; color: #fff; letter-spacing: .3px; }
+.nav-brand-sub   { font-size: 11px; color: #7dd3fc; font-weight: 500; }
 .nav-links { display: flex; }
 .nav-link {
   color: #94a3b8; text-decoration: none;
-  padding: 17px 18px; font-size: 13px; font-weight: 600;
+  padding: 0 16px; height: 60px; font-size: 13px; font-weight: 600;
   display: flex; align-items: center; gap: 6px;
   transition: color .15s, background .15s;
   border-bottom: 3px solid transparent; white-space: nowrap;
 }
-.nav-link:hover { color: #e2e8f0; }
-.nav-link.active { color: #fff; border-bottom-color: #3b82f6; }
+.nav-link:hover { color: #e2e8f0; background: rgba(255,255,255,.07); }
+.nav-link.active { color: #fff; border-bottom-color: #38bdf8; background: rgba(56,189,248,.08); }
 
 /* ── Page ─────────────────────────────────────────────────────── */
 .page { max-width: 1080px; margin: 0 auto; padding: 28px 16px 60px; }
@@ -102,6 +111,14 @@ select.filter:focus { outline: none; border-color: var(--primary); }
   cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background .15s;
 }
 .btn-refresh:hover { background: var(--primary-dark); }
+.btn-excel {
+  background: #16a34a; color: #fff; border: none; border-radius: 10px;
+  padding: 8px 16px; font: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background .15s, opacity .15s;
+  white-space: nowrap;
+}
+.btn-excel:hover { background: #15803d; }
+.btn-excel:disabled { opacity: .6; cursor: not-allowed; }
 .result-count { font-size: 12px; color: var(--muted); width: 100%; padding-top: 2px; }
 
 /* ── Patient card ─────────────────────────────────────────────── */
@@ -312,7 +329,13 @@ select.filter:focus { outline: none; border-color: var(--primary); }
 <body>
 
 <nav>
-  <div class="nav-brand">🏥 Camporee <span>UMN 2026</span></div>
+  <a class="nav-brand" href="index.html">
+    <img class="nav-logo" src="logocamporee.png" alt="Camporee UMN 2026" onerror="this.style.display='none'" />
+    <div class="nav-brand-text">
+      <span class="nav-brand-title">Camporee UMN 2026</span>
+      <span class="nav-brand-sub">Clínica de Emergencias Médicas</span>
+    </div>
+  </a>
   <div class="nav-links">
     <a class="nav-link" href="index.html">
       <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -387,6 +410,14 @@ select.filter:focus { outline: none; border-color: var(--primary); }
         <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
       </svg>
       Actualizar
+    </button>
+    <button class="btn-excel" id="btnExcel" onclick="downloadExcel()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Descargar Excel
     </button>
     <div class="result-count" id="resultCount"></div>
   </div>
@@ -1029,6 +1060,124 @@ async function copyResumen(pid, num) {
     await navigator.clipboard.writeText(txt);
     toast('Resumen copiado ✓');
   } catch (_) { toast('No se pudo copiar','e'); }
+}
+
+// ── Download Excel ────────────────────────────────────────────────────────────
+async function downloadExcel() {
+  const btn = document.getElementById('btnExcel');
+  btn.disabled = true;
+  btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Descargando…`;
+
+  try {
+    const pacientes = allPacientes.length ? allPacientes : await fetch(`${API_BASE}/api/pacientes`).then(r => r.json());
+
+    const rows = [];
+
+    for (const p of pacientes) {
+      let consultas = consultasCache[p.id];
+      if (!consultas) {
+        try {
+          const r = await fetch(`${API_BASE}/api/pacientes/${p.id}/consultas`);
+          consultas = await r.json();
+          consultasCache[p.id] = consultas;
+        } catch (_) { consultas = []; }
+      }
+
+      if (!consultas.length) {
+        rows.push({
+          'ID Paciente':        p.id,
+          '# Consulta':         '—',
+          'Nombre completo':    p.nombre_completo || '—',
+          'Edad':               '—',
+          'Fecha nacimiento':   '—',
+          'Tipo de sangre':     '—',
+          'Asociación':         p.asociacion || '—',
+          'Club':               p.club || '—',
+          'Tel. emergencia':    '—',
+          'Médico que atendió': '—',
+          'Fecha de atención':  '—',
+          'TA (mmHg)':          '—',
+          'FC (lpm)':           '—',
+          'FR (rpm)':           '—',
+          'Temp (°C)':          '—',
+          'Glucosa (mg/dL)':    '—',
+          'SpO2 (%)':           '—',
+          'Síntomas':           '—',
+          'Evento previo':      '—',
+          'Antecedentes':       '—',
+          'Alergias':           '—',
+          'Medicamentos':       '—',
+          'Diagnóstico':        '—',
+          'Tratamiento (TX)':   '—',
+          'Indicaciones':       '—',
+          'Requiere traslado':  'No',
+          'Hospital destino':   '—',
+          'Motivo traslado':    '—',
+          'Paramédico':         '—',
+          'Observación traslado':'—',
+        });
+      } else {
+        for (const c of consultas) {
+          const hasT = !!(c.requiereambulancia || c.requiereAmbulancia);
+          rows.push({
+            'ID Paciente':        p.id,
+            '# Consulta':         c.numero_consulta || '—',
+            'Nombre completo':    c.nombrecompleto || c.nombreCompleto || p.nombre_completo || '—',
+            'Edad':               c.edad ? `${c.edad} años` : '—',
+            'Fecha nacimiento':   c.fechanacimiento || c.fechaNacimiento || '—',
+            'Tipo de sangre':     c.tiposangre || c.tipoSangre || '—',
+            'Asociación':         c.asociacion || p.asociacion || '—',
+            'Club':               c.club && c.club !== 'N/D' ? c.club : (p.club || '—'),
+            'Tel. emergencia':    c.numeroemergencia || c.numeroEmergencia || '—',
+            'Médico que atendió': c.medico || '—',
+            'Fecha de atención':  c.created_at ? new Date(c.created_at).toLocaleString('es-MX') : '—',
+            'TA (mmHg)':          c.ta || '—',
+            'FC (lpm)':           c.fc || '—',
+            'FR (rpm)':           c.fr || '—',
+            'Temp (°C)':          c.temp || '—',
+            'Glucosa (mg/dL)':    c.glucosa || '—',
+            'SpO2 (%)':           c.spo2 || '—',
+            'Síntomas':           c.sintomas || '—',
+            'Evento previo':      c.eventoprevio || c.eventoPrevio || '—',
+            'Antecedentes':       c.antecedentes || '—',
+            'Alergias':           c.alergias || '—',
+            'Medicamentos':       c.medicamentos || '—',
+            'Diagnóstico':        c.diagnostico || '—',
+            'Tratamiento (TX)':   c.tx || '—',
+            'Indicaciones':       c.indicaciones || '—',
+            'Requiere traslado':  hasT ? 'Sí' : 'No',
+            'Hospital destino':   c.hospitaldestino || c.hospitalDestino || '—',
+            'Motivo traslado':    c.motivotraslado || c.motivoTraslado || '—',
+            'Paramédico':         c.paramedico || '—',
+            'Observación traslado': c.observaciontraslado || c.observacionTraslado || '—',
+          });
+        }
+      }
+    }
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(rows);
+
+    ws['!cols'] = [
+      { wch: 10 }, { wch: 10 }, { wch: 30 }, { wch: 10 }, { wch: 16 },
+      { wch: 14 }, { wch: 30 }, { wch: 22 }, { wch: 16 }, { wch: 22 },
+      { wch: 22 }, { wch: 12 }, { wch: 10 }, { wch: 10 }, { wch: 10 },
+      { wch: 14 }, { wch: 10 }, { wch: 35 }, { wch: 35 }, { wch: 35 },
+      { wch: 25 }, { wch: 30 }, { wch: 35 }, { wch: 35 }, { wch: 35 },
+      { wch: 16 }, { wch: 25 }, { wch: 30 }, { wch: 22 }, { wch: 35 },
+    ];
+
+    XLSX.utils.book_append_sheet(wb, ws, 'Registros');
+
+    const fecha = new Date().toLocaleDateString('es-MX', { year:'numeric', month:'2-digit', day:'2-digit' }).replace(/\//g,'-');
+    XLSX.writeFile(wb, `Camporee_UMN_2026_Registros_${fecha}.xlsx`);
+    toast(`Excel descargado · ${rows.length} fila(s)`);
+  } catch (e) {
+    toast('Error al generar el Excel', 'e');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Descargar Excel`;
+  }
 }
 
 // ── Helper ────────────────────────────────────────────────────────────────────
