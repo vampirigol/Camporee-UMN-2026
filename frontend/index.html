@@ -173,6 +173,29 @@ button:active { transform: scale(.98); }
 .toast.success { border-left: 4px solid var(--success); }
 .toast.error   { border-left: 4px solid var(--danger); }
 
+/* ── Autocomplete ────────────────────────────────────────── */
+.ac-wrap { position: relative; }
+.ac-drop {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 600;
+  background: #fff; border: 1.5px solid #bfdbfe; border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.13);
+  max-height: 200px; overflow-y: auto;
+  display: none; animation: acFade .12s ease;
+}
+.ac-drop.open { display: block; }
+@keyframes acFade { from { opacity:0; transform:translateY(-4px); } to { opacity:1; transform:translateY(0); } }
+.ac-item {
+  padding: 9px 14px; cursor: pointer; font-size: 14px;
+  border-bottom: 1px solid #f1f5f9; color: var(--text);
+  transition: background .1s;
+  display: flex; align-items: center; gap: 8px;
+}
+.ac-item:last-child { border-bottom: none; }
+.ac-item:hover, .ac-item.active { background: #eff6ff; }
+.ac-item mark { background: none; color: var(--primary); font-weight: 800; font-style: normal; }
+.ac-icon { font-size: 13px; opacity: .55; flex-shrink: 0; }
+.ac-empty { padding: 10px 14px; font-size: 13px; color: var(--muted); font-style: italic; }
+
 /* ── Print ───────────────────────────────────────────────── */
 @media print {
   nav, .actions, .presets, .chips, .print-actions, .toast, .match-banner { display: none !important; }
@@ -281,7 +304,10 @@ button:active { transform: scale(.98); }
         </div>
         <div class="control">
           <label for="club">Club *</label>
-          <input id="club" name="club" type="text" placeholder="Nombre del club" required />
+          <div class="ac-wrap">
+            <input id="club" name="club" type="text" placeholder="Nombre del club" required autocomplete="off" />
+            <div id="acClub" class="ac-drop"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -389,7 +415,10 @@ button:active { transform: scale(.98); }
         </div>
         <div class="control">
           <label for="medico">Médico que atendió</label>
-          <input id="medico" name="medico" type="text" placeholder="Nombre del médico" />
+          <div class="ac-wrap">
+            <input id="medico" name="medico" type="text" placeholder="Nombre del médico" autocomplete="off" />
+            <div id="acMedico" class="ac-drop"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -634,6 +663,98 @@ function resetForm() {
   hideBanner();
   currentPacienteId = null;
 }
+
+// ── Autocomplete ──────────────────────────────────────────────────────────────
+const _acCache = {};
+
+async function fetchSugerencias(tipo) {
+  if (_acCache[tipo]) return _acCache[tipo];
+  try {
+    const r = await fetch(`${API_BASE}/api/sugerencias?tipo=${tipo}`);
+    const d = await r.json();
+    _acCache[tipo] = Array.isArray(d) ? d : [];
+  } catch (_) { _acCache[tipo] = []; }
+  return _acCache[tipo];
+}
+
+function highlight(text, q) {
+  if (!q) return text;
+  const safe = q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(new RegExp(`(${safe})`, 'gi'), '<mark>$1</mark>');
+}
+
+function createAutocomplete({ inputId, dropId, tipo, icon }) {
+  const input = document.getElementById(inputId);
+  const drop  = document.getElementById(dropId);
+  let activeIdx = -1;
+  let currentItems = [];
+
+  function closeAll() {
+    drop.classList.remove('open');
+    activeIdx = -1;
+  }
+
+  function render(items, q) {
+    currentItems = items;
+    activeIdx = -1;
+    if (!items.length) {
+      drop.innerHTML = `<div class="ac-empty">Sin sugerencias aún</div>`;
+    } else {
+      drop.innerHTML = items.map((item, i) =>
+        `<div class="ac-item" data-idx="${i}">
+          <span class="ac-icon">${icon}</span>
+          <span>${highlight(item, q)}</span>
+        </div>`
+      ).join('');
+      drop.querySelectorAll('.ac-item').forEach(el => {
+        el.addEventListener('mousedown', e => e.preventDefault());
+        el.addEventListener('click', () => { input.value = currentItems[+el.dataset.idx]; closeAll(); });
+      });
+    }
+    drop.classList.add('open');
+  }
+
+  async function update() {
+    const q    = input.value.trim();
+    const list = await fetchSugerencias(tipo);
+    const filtered = q.length === 0
+      ? list.slice(0, 10)
+      : list.filter(s => s.toLowerCase().includes(q.toLowerCase())).slice(0, 8);
+    if (filtered.length === 0 && q.length < 2) { closeAll(); return; }
+    render(filtered, q);
+  }
+
+  input.addEventListener('input',  update);
+  input.addEventListener('focus',  update);
+  input.addEventListener('blur',   () => setTimeout(closeAll, 150));
+
+  input.addEventListener('keydown', e => {
+    if (!drop.classList.contains('open')) return;
+    const items = drop.querySelectorAll('.ac-item');
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIdx = Math.min(activeIdx + 1, items.length - 1);
+      items.forEach((el, i) => el.classList.toggle('active', i === activeIdx));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIdx = Math.max(activeIdx - 1, 0);
+      items.forEach((el, i) => el.classList.toggle('active', i === activeIdx));
+    } else if (e.key === 'Enter' && activeIdx >= 0) {
+      e.preventDefault();
+      input.value = currentItems[activeIdx];
+      closeAll();
+    } else if (e.key === 'Escape') {
+      closeAll();
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (!input.contains(e.target) && !drop.contains(e.target)) closeAll();
+  });
+}
+
+createAutocomplete({ inputId: 'club',   dropId: 'acClub',   tipo: 'club',   icon: '🏕' });
+createAutocomplete({ inputId: 'medico', dropId: 'acMedico', tipo: 'medico', icon: '🩺' });
 </script>
 </body>
 </html>

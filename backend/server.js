@@ -58,6 +58,23 @@ const normName = (name) =>
 // ─── Health ───────────────────────────────────────────────────────────────────
 app.get("/health", (_req, res) => res.json({ ok: true, status: "healthy" }));
 
+// ─── Sugerencias (autocomplete) ──────────────────────────────────────────────
+app.get("/api/sugerencias", async (req, res) => {
+  const allowed = { medico: "medico", club: "club", asociacion: "asociacion" };
+  const col = allowed[req.query.tipo];
+  if (!col) return res.status(400).json({ error: "tipo inválido" });
+  try {
+    const { rows } = await pool.query(
+      `SELECT DISTINCT ${col} AS val FROM registros
+       WHERE ${col} IS NOT NULL AND ${col} NOT IN ('','N/D','N/A','-','NINGUNA')
+       ORDER BY val LIMIT 120`
+    );
+    res.json(rows.map(r => r.val).filter(Boolean));
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ─── Stats ────────────────────────────────────────────────────────────────────
 app.get("/api/stats", async (_req, res) => {
   try {
