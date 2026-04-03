@@ -277,6 +277,81 @@ app.post("/api/registros", async (req, res) => {
   }
 });
 
+// ─── Update registro ──────────────────────────────────────────────────────────
+app.put("/api/registros/:id", async (req, res) => {
+  const id = parseInt(req.params.id);
+  if (!id) return res.status(400).json({ error: "ID inválido" });
+  const b = req.body || {};
+  const p = {
+    nombreCompleto:    nt(b.nombreCompleto),
+    numeroEmergencia:  nt(b.numeroEmergencia),
+    fechaNacimiento:   nt(b.fechaNacimiento),
+    edad:              b.edad !== undefined && b.edad !== '' ? Number(b.edad) : null,
+    asociacion:        nt(b.asociacion),
+    club:              nt(b.club),
+    tipoSangre:        nt(b.tipoSangre),
+    ta: nt(b.ta), fc: nt(b.fc), fr: nt(b.fr),
+    temp: nt(b.temp), glucosa: nt(b.glucosa), spo2: nt(b.spo2),
+    sintomas:          nt(b.sintomas),
+    eventoPrevio:      nt(b.eventoPrevio),
+    antecedentes:      nt(b.antecedentes),
+    medicamentos:      nt(b.medicamentos),
+    alergias:          nt(b.alergias),
+    diagnostico:       nt(b.diagnostico),
+    tx:                nt(b.tx),
+    indicaciones:      nt(b.indicaciones),
+    medico:            nt(b.medico),
+    requiereAmbulancia: !!b.requiereAmbulancia,
+    observacionTraslado: nt(b.observacionTraslado),
+    hospitalDestino:   nt(b.hospitalDestino),
+    motivoTraslado:    nt(b.motivoTraslado),
+    paramedico:        nt(b.paramedico),
+    firmaMedico:       nt(b.firmaMedico),
+  };
+  try {
+    const { rowCount } = await pool.query(
+      `UPDATE registros SET
+        "nombreCompleto"=$1, "numeroEmergencia"=$2, "fechaNacimiento"=$3, edad=$4,
+        asociacion=$5, club=$6, "tipoSangre"=$7,
+        ta=$8, fc=$9, fr=$10, temp=$11, glucosa=$12, spo2=$13,
+        sintomas=$14, "eventoPrevio"=$15, antecedentes=$16, medicamentos=$17,
+        alergias=$18, diagnostico=$19, tx=$20, indicaciones=$21, medico=$22,
+        "requiereAmbulancia"=$23, "observacionTraslado"=$24,
+        "hospitalDestino"=$25, "motivoTraslado"=$26, paramedico=$27, "firmaMedico"=$28
+       WHERE id=$29`,
+      [
+        p.nombreCompleto, p.numeroEmergencia, p.fechaNacimiento || null, p.edad,
+        p.asociacion, p.club, p.tipoSangre || null,
+        p.ta || null, p.fc || null, p.fr || null, p.temp || null, p.glucosa || null, p.spo2 || null,
+        p.sintomas || null, p.eventoPrevio || null, p.antecedentes || null,
+        p.medicamentos || null, p.alergias || null, p.diagnostico || null,
+        p.tx || null, p.indicaciones || null, p.medico || null,
+        p.requiereAmbulancia,
+        p.observacionTraslado || null, p.hospitalDestino || null,
+        p.motivoTraslado || null, p.paramedico || null, p.firmaMedico || null,
+        id,
+      ]
+    );
+    if (rowCount === 0) return res.status(404).json({ error: "Registro no encontrado" });
+    // Sync paciente datos generales
+    if (b.pacienteId) {
+      const pid = parseInt(b.pacienteId);
+      await pool.query(
+        `UPDATE pacientes SET nombre_completo=$1, numero_emergencia=$2, asociacion=$3, club=$4,
+         tipo_sangre=COALESCE(NULLIF($5,''), tipo_sangre),
+         fecha_nacimiento=COALESCE(NULLIF($6,'')::date, fecha_nacimiento)
+         WHERE id=$7`,
+        [p.nombreCompleto, p.numeroEmergencia, p.asociacion, p.club,
+         p.tipoSangre || null, p.fechaNacimiento || null, pid]
+      ).catch(() => {});
+    }
+    res.json({ ok: true });
+  } catch (e) {
+    console.error("PUT /api/registros/:id", e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.use((_req, res) => res.status(404).json({ error: "Ruta no encontrada" }));
 
 const start = async () => {
