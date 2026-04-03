@@ -1,977 +1,637 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Clínica Médica · Camporee UMN 2026</title>
-<style>
-:root {
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
-  --success: #10b981;
-  --danger: #ef4444;
-  --warn: #f59e0b;
-  --bg: #f1f5f9;
-  --card: #ffffff;
-  --text: #1e293b;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --radius: 12px;
-  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.06);
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registro Médico - Camporee UMN 2026</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --primary: #0f7ae5;
+      --text: #1f2933;
+      --muted: #5f6b76;
+      --border: #e2e8f0;
+      --shadow: 0 10px 30px rgba(15, 122, 229, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .page {
+      max-width: 1000px;
+      margin: 24px auto 48px;
+      padding: 0 16px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+    form { display: flex; flex-direction: column; gap: 18px; }
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px 10px;
+      margin: 0;
+    }
+    legend {
+      padding: 0 8px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+    }
+    .control {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label { font-weight: 600; font-size: 14px; color: var(--text); }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font: inherit;
+      background: #fdfdfd;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(15, 122, 229, 0.15);
+    }
+    textarea { min-height: 90px; resize: vertical; }
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 10px;
+      border: 1px dashed var(--primary);
+      border-radius: 12px;
+      background: rgba(15, 122, 229, 0.06);
+      cursor: pointer;
+    }
+    .checkbox-row input { width: 22px; height: 22px; cursor: pointer; }
+    .hidden { display: none; }
+    .actions { display: flex; justify-content: flex-end; }
+    button {
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 700;
+      color: white;
+      background: var(--primary);
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform 0.1s, box-shadow 0.2s;
+    }
+    button:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(15, 122, 229, 0.18); }
+    button:active { transform: translateY(0); }
+    .print-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 12px; }
+    .secondary {
+      background: #1f2933;
+    }
+    .full-span {
+      grid-column: 1 / -1;
+    }
+    .textarea-wide {
+      min-height: 140px;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .chip {
+      padding: 6px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #f1f5f9;
+      cursor: pointer;
+      font-size: 13px;
+      transition: background 0.15s, border 0.15s;
+    }
+    .chip:hover { background: #e2e8f0; border-color: #cbd5e1; }
+    .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+    .preset-btn {
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #eef6ff;
+      color: var(--primary);
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .preset-btn:hover { background: #ddebff; }
+    @media (max-width: 640px) {
+      h1 { font-size: 22px; }
+      .page { padding: 0 12px; }
+    }
+    /* ── Hero Section ── */
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: 52px 24px 40px;
+      margin-bottom: 28px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: linear-gradient(145deg, #0a1628 0%, #0d2247 40%, #0f3460 70%, #1a4a7a 100%);
+      box-shadow: 0 20px 60px rgba(10, 22, 40, 0.35);
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255,255,255,0.06) 0%, transparent 70%),
+        radial-gradient(ellipse 80% 40% at 80% 100%, rgba(15,122,229,0.12) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .hero-stars {
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 15% 20%, rgba(255,255,255,0.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 75% 15%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 88% 50%, rgba(255,255,255,0.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 25% 85%, rgba(255,255,255,0.3) 0%, transparent 100%),
+        radial-gradient(2px 2px at 60% 35%, rgba(255,255,255,0.35) 0%, transparent 100%),
+        radial-gradient(1px 1px at 92% 80%, rgba(255,255,255,0.4) 0%, transparent 100%),
+        radial-gradient(1px 1px at 5%  55%, rgba(255,255,255,0.3) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    .hero-logo-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+    .hero-logo-glow {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(15,122,229,0.25) 0%, transparent 70%);
+      filter: blur(20px);
+    }
+    .hero-logo {
+      position: relative;
+      width: clamp(140px, 22vw, 200px);
+      height: auto;
+      filter: drop-shadow(0 8px 24px rgba(15,122,229,0.4)) drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+      animation: heroFloat 5s ease-in-out infinite;
+    }
+    @keyframes heroFloat {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-7px); }
+    }
+    .hero-title {
+      position: relative;
+      margin: 0 0 10px;
+      font-size: clamp(22px, 4.5vw, 36px);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: #ffffff;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.4);
+    }
+    .hero-title span {
+      background: linear-gradient(90deg, #60a5fa, #93c5fd, #bfdbfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero-divider {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 14px auto;
+      max-width: 320px;
+    }
+    .hero-divider::before,
+    .hero-divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(148,196,255,0.45));
+    }
+    .hero-divider::after {
+      background: linear-gradient(90deg, rgba(148,196,255,0.45), transparent);
+    }
+    .hero-divider-gem {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background: #60a5fa;
+      transform: rotate(45deg);
+      box-shadow: 0 0 10px #60a5fa;
+    }
+    .hero-subtitle {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 22px;
+      border-radius: 50px;
+      border: 1px solid rgba(148,196,255,0.3);
+      background: rgba(255,255,255,0.07);
+      backdrop-filter: blur(6px);
+      color: #bfdbfe;
+      font-size: clamp(13px, 2.2vw, 15px);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .hero-subtitle svg {
+      width: 14px;
+      height: 14px;
+      opacity: 0.75;
+    }
+    .hero-badge {
+      position: relative;
+      margin-top: 20px;
+      display: inline-block;
+      padding: 5px 14px;
+      border-radius: 20px;
+      background: rgba(15,122,229,0.25);
+      border: 1px solid rgba(96,165,250,0.35);
+      color: #93c5fd;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    @media (max-width: 640px) {
+      .hero { padding: 40px 16px 32px; margin-bottom: 20px; }
+    }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  font-size: 15px;
-  line-height: 1.5;
-  min-height: 100vh;
-  padding: 20px 16px 60px;
-}
-
-/* ── Layout ─────────────────────────────────────────────── */
-.page { max-width: 820px; margin: 0 auto; }
-
-header {
-  text-align: center;
-  margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-}
-header h1 { font-size: 22px; font-weight: 700; color: var(--text); }
-header p  { font-size: 13px; color: var(--muted); margin-top: 4px; }
-
-.card {
-  background: var(--card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 24px;
-  margin-bottom: 20px;
-}
-
-.section-title {
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .6px;
-  color: var(--primary);
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--primary);
-}
-
-/* ── Form grid ──────────────────────────────────────────── */
-.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.full-span { grid-column: 1 / -1; }
-@media (max-width: 540px) { .grid { grid-template-columns: 1fr; } }
-
-.control { display: flex; flex-direction: column; gap: 5px; }
-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
-
-input, select, textarea {
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  padding: 9px 12px;
-  font: inherit;
-  font-size: 15px;
-  color: var(--text);
-  background: #fff;
-  transition: border-color .2s, box-shadow .2s;
-  width: 100%;
-}
-input:focus, select:focus, textarea:focus {
-  outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
-}
-textarea { resize: vertical; min-height: 72px; }
-.textarea-wide { min-height: 100px; }
-
-/* ── Vitals grid ────────────────────────────────────────── */
-.vitals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-@media (max-width: 540px) { .vitals-grid { grid-template-columns: 1fr 1fr; } }
-
-/* ── Preset buttons ─────────────────────────────────────── */
-.presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
-.preset-btn {
-  background: #f1f5f9; border: 1.5px solid var(--border);
-  border-radius: 8px; padding: 6px 12px; font-size: 13px; font-weight: 600;
-  color: var(--muted); cursor: pointer; transition: background .15s, border-color .15s;
-}
-.preset-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
-
-/* ── Chips ──────────────────────────────────────────────── */
-.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
-.chip {
-  background: #eff6ff; border: 1.5px solid #bfdbfe;
-  border-radius: 20px; padding: 4px 12px; font-size: 12px;
-  color: var(--primary); cursor: pointer; font-weight: 600;
-  transition: background .15s, color .15s;
-}
-.chip:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
-
-/* ── Buttons ────────────────────────────────────────────── */
-button {
-  border: none; border-radius: 10px; padding: 11px 20px;
-  font: inherit; font-size: 15px; font-weight: 600;
-  cursor: pointer; transition: background .15s, transform .1s;
-}
-button:active { transform: scale(.98); }
-.btn-primary { background: var(--primary); color: #fff; }
-.btn-primary:hover { background: var(--primary-dark); }
-.btn-secondary { background: #f1f5f9; color: var(--text); }
-.btn-secondary:hover { background: var(--border); }
-.btn-danger { background: #fef2f2; color: var(--danger); }
-.btn-danger:hover { background: var(--danger); color: #fff; }
-
-.actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 8px; }
-.print-actions { display: flex; gap: 10px; margin-top: 8px; }
-
-/* ── Checkbox large ─────────────────────────────────────── */
-.checkbox-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px; border-radius: 10px; background: #f8fafc;
-  border: 1.5px solid var(--border); cursor: pointer;
-}
-.checkbox-row input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: var(--danger); }
-.checkbox-row span { font-weight: 600; font-size: 15px; }
-
-.ambulancia-section { display: none; margin-top: 20px; }
-.ambulancia-section.visible { display: block; }
-
-/* ── "Visualizar Tabla" button fixed top-right ──────────── */
-.fab-tabla {
-  position: fixed; top: 16px; right: 16px; z-index: 200;
-  background: #1e293b; color: #fff;
-  border-radius: 50px; padding: 10px 18px;
-  font-size: 13px; font-weight: 700;
-  display: flex; align-items: center; gap: 7px;
-  box-shadow: 0 4px 16px rgba(0,0,0,.2);
-  transition: background .2s;
-}
-.fab-tabla:hover { background: #0f172a; }
-
-/* ── Match banner ───────────────────────────────────────── */
-.match-banner {
-  display: none;
-  background: #ecfdf5; border: 1.5px solid var(--success);
-  border-radius: var(--radius); padding: 14px 18px;
-  margin-bottom: 16px; align-items: center;
-  justify-content: space-between; gap: 12px; flex-wrap: wrap;
-}
-.match-banner.visible { display: flex; }
-.match-banner-left { display: flex; align-items: center; gap: 10px; }
-.match-banner-left svg { flex-shrink: 0; }
-.match-text { font-size: 14px; font-weight: 600; color: #065f46; }
-.match-sub  { font-size: 12px; color: #047857; }
-.badge-num {
-  background: var(--success); color: #fff;
-  border-radius: 20px; padding: 3px 10px;
-  font-size: 13px; font-weight: 700;
-}
-.btn-ver-hist {
-  background: var(--success); color: #fff;
-  border-radius: 8px; padding: 7px 14px;
-  font-size: 13px; font-weight: 700;
-}
-.btn-ver-hist:hover { background: #059669; }
-
-/* ── Toast ──────────────────────────────────────────────── */
-.toast {
-  position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-  background: #1e293b; color: #fff;
-  border-radius: 12px; padding: 14px 20px;
-  display: flex; align-items: center; gap: 10px;
-  font-size: 14px; font-weight: 600;
-  box-shadow: 0 8px 24px rgba(0,0,0,.2);
-  transition: opacity .3s, transform .3s;
-  opacity: 0; transform: translateY(20px); pointer-events: none;
-}
-.toast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
-.toast.success { border-left: 4px solid var(--success); }
-.toast.error   { border-left: 4px solid var(--danger); }
-.toast-icon { font-size: 18px; }
-
-/* ── Table modal ────────────────────────────────────────── */
-.modal-overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.55); z-index: 1000;
-  display: none; align-items: flex-start; justify-content: center;
-  padding: 20px; overflow-y: auto;
-}
-.modal-overlay.open { display: flex; }
-.modal-box {
-  background: #fff; border-radius: 16px;
-  width: 100%; max-width: 980px;
-  margin: auto; padding: 28px;
-  box-shadow: 0 24px 64px rgba(0,0,0,.2);
-}
-.modal-header {
-  display: flex; align-items: center;
-  justify-content: space-between; margin-bottom: 20px;
-}
-.modal-header h2 { font-size: 20px; font-weight: 700; }
-.btn-close-modal {
-  background: #f1f5f9; color: var(--muted);
-  border-radius: 8px; padding: 6px 12px; font-size: 16px;
-}
-.btn-close-modal:hover { background: var(--border); }
-
-.tabla-search {
-  margin-bottom: 16px; position: relative;
-}
-.tabla-search input {
-  padding: 10px 14px 10px 38px;
-  border-radius: 10px;
-}
-.tabla-search svg {
-  position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-  pointer-events: none;
-}
-.tabla-stats {
-  font-size: 13px; color: var(--muted); margin-bottom: 12px;
-}
-
-/* ── Patient cards ──────────────────────────────────────── */
-.paciente-card {
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius); margin-bottom: 12px; overflow: hidden;
-  transition: border-color .2s;
-}
-.paciente-card:hover { border-color: var(--primary); }
-.paciente-header {
-  padding: 14px 18px; display: flex;
-  align-items: center; justify-content: space-between;
-  cursor: pointer; gap: 12px; flex-wrap: wrap;
-}
-.paciente-header:hover { background: #f8fafc; }
-.paciente-nombre { font-weight: 700; font-size: 15px; margin-bottom: 3px; }
-.paciente-meta   { font-size: 12px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
-.badge-consultas {
-  background: var(--primary); color: #fff;
-  border-radius: 20px; padding: 4px 12px;
-  font-size: 12px; font-weight: 700; white-space: nowrap;
-}
-.chevron { transition: transform .2s; color: var(--muted); }
-.paciente-card.expanded .chevron { transform: rotate(180deg); }
-
-/* ── Consulta items ─────────────────────────────────────── */
-.consultas-list { border-top: 1.5px solid var(--border); display: none; }
-.paciente-card.expanded .consultas-list { display: block; }
-.consulta-item {
-  padding: 18px; border-bottom: 1px solid var(--border);
-  background: #f8fafc;
-}
-.consulta-item:last-child { border-bottom: none; }
-.consulta-item-header {
-  display: flex; align-items: center;
-  justify-content: space-between; margin-bottom: 14px;
-}
-.consulta-num {
-  background: #1e293b; color: #fff;
-  border-radius: 8px; padding: 4px 12px;
-  font-size: 13px; font-weight: 700;
-}
-.consulta-fecha { font-size: 12px; color: var(--muted); }
-
-.consulta-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-.cf label {
-  display: block; font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .5px;
-  color: var(--muted); margin-bottom: 3px;
-}
-.cf .val { font-size: 14px; color: var(--text); }
-.cf.key label { color: var(--primary); }
-.cf.key .val { font-weight: 700; }
-
-.vitals-strip {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border);
-}
-.vital-tag {
-  background: #eff6ff; border: 1px solid #bfdbfe;
-  border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600;
-  color: var(--primary);
-}
-.traslado-badge {
-  background: #fef2f2; border: 1px solid #fecaca;
-  border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 700;
-  color: var(--danger); margin-top: 8px; display: inline-block;
-}
-
-.empty-state {
-  text-align: center; padding: 48px 0; color: var(--muted);
-}
-.empty-state svg { margin-bottom: 12px; opacity: .4; }
-
-/* ── Print styles ───────────────────────────────────────── */
-@media print {
-  .fab-tabla, .actions, .presets, .chips, .print-actions,
-  .modal-overlay, .toast, .match-banner { display: none !important; }
-  body { background: #fff; padding: 0; }
-  .card { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
-  .ambulancia-section { display: block !important; }
-}
-</style>
+    @media print {
+      body { background: white; }
+      .card { border: 1px solid #ccc; box-shadow: none; }
+      button { display: none; }
+      .checkbox-row { border: 1px solid #888; }
+      .hero {
+        background: #0a1628 !important;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="page">
+    <!-- Hero del evento -->
+    <header class="hero">
+      <div class="hero-stars"></div>
 
-<!-- Visualizar Tabla button -->
-<button class="fab-tabla" onclick="openTabla()">
-  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-    <rect x="3" y="3" width="18" height="18" rx="2"/>
-    <line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/>
-    <line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>
-  </svg>
-  Visualizar tabla
-</button>
+      <div class="hero-logo-wrap">
+        <div class="hero-logo-glow"></div>
+        <img class="hero-logo" src="logocamporee.png" alt="Logo Camporee UMN 2026" />
+      </div>
 
-<!-- Toast -->
-<div id="toast" class="toast">
-  <span class="toast-icon" id="toastIcon">✓</span>
-  <span id="toastMsg">Registro guardado correctamente</span>
-</div>
+      <h1 class="hero-title">Camporee <span>UMN 2026</span></h1>
 
-<!-- Table modal -->
-<div id="tablaModal" class="modal-overlay" onclick="overlayClick(event)">
-  <div class="modal-box">
-    <div class="modal-header">
-      <h2>Pacientes y consultas</h2>
-      <button class="btn-close-modal" onclick="closeTabla()">✕ Cerrar</button>
+      <div class="hero-divider"><div class="hero-divider-gem"></div></div>
+
+      <div class="hero-subtitle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        1 al 5 de abril 2026
+      </div>
+
+      <div class="hero-badge">Registro Médico Oficial</div>
+    </header>
+
+    <div class="card">
+      <form id="registroForm" autocomplete="off">
+        <!-- Datos Generales -->
+        <fieldset>
+          <legend>Datos Generales</legend>
+          <div class="grid">
+            <div class="control">
+              <label for="nombreCompleto">Nombre completo</label>
+              <input id="nombreCompleto" name="nombreCompleto" type="text" required />
+            </div>
+            <div class="control">
+              <label for="numeroEmergencia">Número de emergencia</label>
+              <input id="numeroEmergencia" name="numeroEmergencia" type="text" required />
+            </div>
+            <div class="control">
+              <label for="fechaNacimiento">Fecha de nacimiento</label>
+              <input id="fechaNacimiento" name="fechaNacimiento" type="date" />
+            </div>
+            <div class="control">
+              <label for="edad">Edad</label>
+              <input id="edad" name="edad" type="number" min="0" placeholder="años" />
+            </div>
+            <div class="control">
+              <label for="asociacion">Asociación</label>
+              <select id="asociacion" name="asociacion" required>
+                <option value="" disabled selected>Selecciona</option>
+                <option>Asociación Norte de Tamaulipas</option>
+                <option>Asociación de Baja California</option>
+                <option>Misión Baja California Sur</option>
+                <option>Asociación de Sonora</option>
+                <option>Asociación del Noreste</option>
+                <option>Misión "A" Noroccidental</option>
+                <option>Asociación del Golfo</option>
+                <option>Asociación de Occidente</option>
+                <option>Asociación de Chihuahua</option>
+                <option>Asociación de Sinaloa</option>
+                <option>Asociación Regiomontana</option>
+                <option>STAFF</option>
+                <option>OTRO</option>
+              </select>
+            </div>
+            <div class="control">
+              <label for="club">Club</label>
+              <input id="club" name="club" type="text" required />
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Signos Vitales -->
+        <fieldset>
+          <legend>Signos Vitales</legend>
+          <div class="presets">
+            <button type="button" class="preset-btn" data-preset="normal">Preset: Vitals estables</button>
+            <button type="button" class="preset-btn" data-preset="febril">Preset: Febrícula</button>
+          </div>
+          <div class="grid">
+            <div class="control">
+              <label for="tipoSangre">Tipo de Sangre</label>
+              <select id="tipoSangre" name="tipoSangre">
+                <option value="" disabled selected>Selecciona</option>
+                <option>O+</option>
+                <option>O-</option>
+                <option>A+</option>
+                <option>A-</option>
+                <option>B+</option>
+                <option>B-</option>
+                <option>AB+</option>
+                <option>AB-</option>
+                <option>Desconocido</option>
+              </select>
+            </div>
+            <div class="control">
+              <label for="ta">TA</label>
+              <input id="ta" name="ta" type="text" placeholder="120/80" />
+            </div>
+            <div class="control">
+              <label for="fc">FC</label>
+              <input id="fc" name="fc" type="text" placeholder="72 lpm" />
+            </div>
+            <div class="control">
+              <label for="fr">FR</label>
+              <input id="fr" name="fr" type="text" placeholder="16 rpm" />
+            </div>
+            <div class="control">
+              <label for="temp">Temp</label>
+              <input id="temp" name="temp" type="text" placeholder="36.5 °C" />
+            </div>
+            <div class="control">
+              <label for="glucosa">Glucosa</label>
+              <input id="glucosa" name="glucosa" type="text" placeholder="mg/dL" />
+            </div>
+            <div class="control">
+              <label for="spo2">SpO2</label>
+              <input id="spo2" name="spo2" type="text" placeholder="98%" />
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- Evaluación Médica -->
+        <fieldset>
+          <legend>Evaluación Médica</legend>
+          <div class="control">
+            <label for="sintomas">Síntomas</label>
+            <textarea id="sintomas" name="sintomas"></textarea>
+          </div>
+          <div class="control">
+            <label for="eventoPrevio">Evento previo al incidente y/o padecimiento</label>
+            <textarea id="eventoPrevio" name="eventoPrevio"></textarea>
+          </div>
+          <div class="control">
+            <label for="antecedentes">Antecedentes Clínicos, Traumáticos y/o Quirúrgicos</label>
+            <textarea id="antecedentes" name="antecedentes"></textarea>
+          </div>
+          <div class="control">
+            <label for="medicamentos">Medicamentos que toma</label>
+            <input id="medicamentos" name="medicamentos" type="text" />
+            <div class="chips" data-target="medicamentos">
+              <button type="button" class="chip">Ibuprofeno</button>
+              <button type="button" class="chip">Paracetamol</button>
+              <button type="button" class="chip">Metformina</button>
+              <button type="button" class="chip">Losartán</button>
+              <button type="button" class="chip">Insulina</button>
+            </div>
+          </div>
+          <div class="control">
+            <label for="alergias">Alergias</label>
+            <input id="alergias" name="alergias" type="text" />
+            <div class="chips" data-target="alergias">
+              <button type="button" class="chip">Penicilina</button>
+              <button type="button" class="chip">AINES</button>
+              <button type="button" class="chip">Sulfas</button>
+              <button type="button" class="chip">Mariscos</button>
+              <button type="button" class="chip">Nueces</button>
+            </div>
+          </div>
+          <div class="control">
+            <label for="tx">TX (Tratamiento)</label>
+            <textarea id="tx" name="tx"></textarea>
+          </div>
+          <div class="control">
+            <label for="indicaciones">Indicaciones</label>
+            <textarea id="indicaciones" name="indicaciones"></textarea>
+          </div>
+          <div class="control">
+            <label for="medico">Médico que atendió</label>
+            <input id="medico" name="medico" type="text" />
+          </div>
+
+          <label class="checkbox-row" for="requiereAmbulancia">
+            <input id="requiereAmbulancia" type="checkbox" />
+            <span>Requiere traslado de emergencia en ambulancia</span>
+          </label>
+
+          <div id="ambulanciaSection" class="hidden">
+            <div class="grid">
+              <div class="control full-span">
+                <label for="observacionTraslado">Observación</label>
+                <textarea id="observacionTraslado" name="observacionTraslado" class="textarea-wide" placeholder="Notas u observaciones relevantes"></textarea>
+              </div>
+              <div class="control">
+                <label for="hospitalDestino">Hospital de destino</label>
+                <select id="hospitalDestino" name="hospitalDestino">
+                  <option value="" disabled selected>Selecciona</option>
+                  <option>Hospital General</option>
+                  <option>IMSS</option>
+                  <option>ISSSTE</option>
+                  <option>Cruz Roja</option>
+                  <option>Clínica privada</option>
+                  <option>Otro (especificar abajo)</option>
+                </select>
+                <input id="hospitalDestinoOtro" name="hospitalDestinoOtro" type="text" placeholder="Otro hospital" class="hidden" />
+              </div>
+              <div class="control">
+                <label for="motivoTraslado">Motivo de traslado</label>
+                <input id="motivoTraslado" name="motivoTraslado" type="text" />
+              </div>
+              <div class="control">
+                <label for="paramedico">Paramédico encargado</label>
+                <select id="paramedico" name="paramedico">
+                  <option value="" disabled selected>Selecciona</option>
+                  <option>Turno A</option>
+                  <option>Turno B</option>
+                  <option>Turno C</option>
+                  <option>Otro (especificar abajo)</option>
+                </select>
+                <input id="paramedicoOtro" name="paramedicoOtro" type="text" placeholder="Nombre del paramédico" class="hidden" />
+              </div>
+              <div class="control">
+                <label for="firmaMedico">Firma de médico a cargo</label>
+                <input id="firmaMedico" name="firmaMedico" type="text" placeholder="______________________" />
+              </div>
+            </div>
+            <div class="print-actions">
+              <button type="button" id="printBtn" class="secondary">Imprimir ficha</button>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="actions">
+          <button type="submit">Guardar Registro</button>
+        </div>
+      </form>
     </div>
-    <div class="tabla-search">
-      <svg width="16" height="16" fill="none" stroke="#94a3b8" stroke-width="2" viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-      <input type="text" id="tablaSearch" placeholder="Buscar paciente por nombre…" oninput="filterTabla(this.value)" />
-    </div>
-    <div id="tablaStats" class="tabla-stats"></div>
-    <div id="tablaList"></div>
   </div>
-</div>
 
-<!-- Page -->
-<div class="page">
-  <header>
-    <h1>Registro Médico · Camporee UMN 2026</h1>
-    <p>Clínica de atención de emergencias</p>
-  </header>
+  <script>
+    const trasladoCheckbox = document.getElementById("requiereAmbulancia");
+    const ambulanciaSection = document.getElementById("ambulanciaSection");
+    const form = document.getElementById("registroForm");
+    const printBtn = document.getElementById("printBtn");
+    const presetButtons = document.querySelectorAll(".preset-btn");
+    const fechaNacimientoInput = document.getElementById("fechaNacimiento");
+    const edadInput = document.getElementById("edad");
+    const hospitalSelect = document.getElementById("hospitalDestino");
+    const hospitalOtro = document.getElementById("hospitalDestinoOtro");
+    const paramedicoSelect = document.getElementById("paramedico");
+    const paramedicoOtro = document.getElementById("paramedicoOtro");
 
-  <!-- Match banner -->
-  <div id="matchBanner" class="match-banner">
-    <div class="match-banner-left">
-      <svg width="22" height="22" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-        <circle cx="12" cy="7" r="4"/>
-      </svg>
-      <div>
-        <div class="match-text">Paciente encontrado: <span id="matchNombre"></span></div>
-        <div class="match-sub">
-          <span class="badge-num" id="matchCount">0</span>
-          consulta(s) previa(s) registradas
-        </div>
-      </div>
-    </div>
-    <button class="btn-ver-hist" id="btnVerHist">Ver historial</button>
-  </div>
-
-  <form id="regForm" novalidate>
-
-    <!-- Datos Generales -->
-    <div class="card">
-      <div class="section-title">Datos Generales</div>
-      <div class="grid">
-        <div class="control full-span">
-          <label for="nombreCompleto">Nombre completo *</label>
-          <input id="nombreCompleto" name="nombreCompleto" type="text" placeholder="Apellido Apellido, Nombre" required autocomplete="off" />
-        </div>
-        <div class="control">
-          <label for="numeroEmergencia">Número de emergencia *</label>
-          <input id="numeroEmergencia" name="numeroEmergencia" type="tel" placeholder="(___) ___-____" required />
-        </div>
-        <div class="control">
-          <label for="fechaNacimiento">Fecha de nacimiento</label>
-          <input id="fechaNacimiento" name="fechaNacimiento" type="date" />
-        </div>
-        <div class="control">
-          <label for="edad">Edad (años)</label>
-          <input id="edad" name="edad" type="number" min="0" max="120" placeholder="0" />
-        </div>
-        <div class="control">
-          <label for="asociacion">Asociación *</label>
-          <select id="asociacion" name="asociacion" required>
-            <option value="">— Seleccionar —</option>
-            <option>Asociación Norte de Tamaulipas</option>
-            <option>Asociación de Baja California</option>
-            <option>Misión Baja California Sur</option>
-            <option>Asociación de Sonora</option>
-            <option>Asociación del Noreste</option>
-            <option>Misión "A" Noroccidental</option>
-            <option>Asociación del Golfo</option>
-            <option>Asociación de Occidente</option>
-            <option>Asociación de Chihuahua</option>
-            <option>Asociación de Sinaloa</option>
-            <option>Asociación Regiomontana</option>
-            <option>STAFF</option>
-            <option>OTRO</option>
-          </select>
-        </div>
-        <div class="control">
-          <label for="club">Club *</label>
-          <input id="club" name="club" type="text" placeholder="Nombre del club" required />
-        </div>
-      </div>
-    </div>
-
-    <!-- Signos Vitales -->
-    <div class="card">
-      <div class="section-title">Signos Vitales</div>
-      <div class="presets">
-        <button type="button" class="preset-btn" data-preset="normal">⚡ Vitales normales</button>
-        <button type="button" class="preset-btn" data-preset="febril">🌡 Febrícula</button>
-        <button type="button" class="preset-btn" data-preset="hta">❤️ HTA leve</button>
-        <button type="button" class="preset-btn" data-preset="limpiar">✕ Limpiar</button>
-      </div>
-      <div class="vitals-grid">
-        <div class="control">
-          <label for="ta">TA (mmHg)</label>
-          <input id="ta" name="ta" type="text" placeholder="120/80" />
-        </div>
-        <div class="control">
-          <label for="fc">FC (lpm)</label>
-          <input id="fc" name="fc" type="text" placeholder="75" />
-        </div>
-        <div class="control">
-          <label for="fr">FR (rpm)</label>
-          <input id="fr" name="fr" type="text" placeholder="16" />
-        </div>
-        <div class="control">
-          <label for="temp">Temperatura (°C)</label>
-          <input id="temp" name="temp" type="text" placeholder="36.5" />
-        </div>
-        <div class="control">
-          <label for="glucosa">Glucosa (mg/dL)</label>
-          <input id="glucosa" name="glucosa" type="text" placeholder="90" />
-        </div>
-        <div class="control">
-          <label for="spo2">SpO₂ (%)</label>
-          <input id="spo2" name="spo2" type="text" placeholder="98" />
-        </div>
-        <div class="control">
-          <label for="tipoSangre">Tipo de sangre</label>
-          <select id="tipoSangre" name="tipoSangre">
-            <option value="">— Desconocido —</option>
-            <option>A+</option><option>A-</option>
-            <option>B+</option><option>B-</option>
-            <option>AB+</option><option>AB-</option>
-            <option>O+</option><option>O-</option>
-          </select>
-        </div>
-      </div>
-    </div>
-
-    <!-- Evaluación Médica -->
-    <div class="card">
-      <div class="section-title">Evaluación Médica</div>
-      <div class="grid">
-        <div class="control full-span">
-          <label for="sintomas">Síntomas</label>
-          <textarea id="sintomas" name="sintomas" placeholder="Describa los síntomas del paciente…"></textarea>
-        </div>
-        <div class="control full-span">
-          <label for="eventoPrevio">Evento previo / motivo de consulta</label>
-          <textarea id="eventoPrevio" name="eventoPrevio" placeholder="¿Qué ocurrió antes de la consulta?"></textarea>
-        </div>
-        <div class="control full-span">
-          <label for="antecedentes">Antecedentes clínicos, traumáticos y/o quirúrgicos</label>
-          <textarea id="antecedentes" name="antecedentes" placeholder="Historia clínica relevante…"></textarea>
-        </div>
-        <div class="control">
-          <label for="medicamentos">Medicamentos que toma</label>
-          <input id="medicamentos" name="medicamentos" type="text" placeholder="Ej. Metformina, Losartán…" autocomplete="off" />
-          <div class="chips" data-target="medicamentos">
-            <button type="button" class="chip">Ibuprofeno</button>
-            <button type="button" class="chip">Paracetamol</button>
-            <button type="button" class="chip">Metformina</button>
-            <button type="button" class="chip">Losartán</button>
-            <button type="button" class="chip">Omeprazol</button>
-            <button type="button" class="chip">Enalapril</button>
-            <button type="button" class="chip">Aspirina</button>
-            <button type="button" class="chip">Ninguno</button>
-          </div>
-        </div>
-        <div class="control">
-          <label for="alergias">Alergias</label>
-          <input id="alergias" name="alergias" type="text" placeholder="Ej. Penicilina, mariscos…" autocomplete="off" />
-          <div class="chips" data-target="alergias">
-            <button type="button" class="chip">Penicilina</button>
-            <button type="button" class="chip">Sulfa</button>
-            <button type="button" class="chip">AINE</button>
-            <button type="button" class="chip">Látex</button>
-            <button type="button" class="chip">Mariscos</button>
-            <button type="button" class="chip">Ninguna</button>
-          </div>
-        </div>
-        <div class="control full-span">
-          <label for="diagnostico">Diagnóstico</label>
-          <textarea id="diagnostico" name="diagnostico" placeholder="Diagnóstico médico del paciente…"></textarea>
-        </div>
-        <div class="control full-span">
-          <label for="tx">TX — Tratamiento</label>
-          <textarea id="tx" name="tx" placeholder="Tratamiento aplicado o indicado…"></textarea>
-        </div>
-        <div class="control full-span">
-          <label for="indicaciones">Indicaciones</label>
-          <textarea id="indicaciones" name="indicaciones" placeholder="Indicaciones para el paciente…"></textarea>
-        </div>
-        <div class="control">
-          <label for="medico">Médico que atendió</label>
-          <input id="medico" name="medico" type="text" placeholder="Nombre del médico" />
-        </div>
-      </div>
-    </div>
-
-    <!-- Ambulancia -->
-    <div class="card">
-      <label class="checkbox-row">
-        <input type="checkbox" id="trasladoCheck" name="requiereAmbulancia" />
-        <span>🚑 Requiere traslado de emergencia en ambulancia</span>
-      </label>
-
-      <div class="ambulancia-section" id="ambulanciaSection">
-        <div class="grid" style="margin-top:16px;">
-          <div class="control">
-            <label for="hospitalDestino">Hospital de destino</label>
-            <select id="hospitalDestino" name="hospitalDestino" onchange="toggleOtro('hospitalDestino','hospitalOtro')">
-              <option value="">— Seleccionar —</option>
-              <option>IMSS</option>
-              <option>ISSSTE</option>
-              <option>Hospital General</option>
-              <option>Cruz Roja</option>
-              <option>Hospital Privado</option>
-              <option>Otro</option>
-            </select>
-            <input id="hospitalOtro" name="hospitalDestinoOtro" type="text" placeholder="Especificar hospital" style="display:none; margin-top:6px;" />
-          </div>
-          <div class="control">
-            <label for="motivoTraslado">Motivo de traslado</label>
-            <input id="motivoTraslado" name="motivoTraslado" type="text" placeholder="Motivo del traslado…" />
-          </div>
-          <div class="control">
-            <label for="paramedico">Paramédico encargado</label>
-            <select id="paramedico" name="paramedico" onchange="toggleOtro('paramedico','paramedicoOtro')">
-              <option value="">— Seleccionar —</option>
-              <option>Paramédico 1</option>
-              <option>Paramédico 2</option>
-              <option>Paramédico 3</option>
-              <option>Otro</option>
-            </select>
-            <input id="paramedicoOtro" name="paramedicoOtro" type="text" placeholder="Nombre del paramédico" style="display:none; margin-top:6px;" />
-          </div>
-          <div class="control">
-            <label for="firmaMedico">Firma de médico a cargo</label>
-            <input id="firmaMedico" name="firmaMedico" type="text" placeholder="______________________" />
-          </div>
-          <div class="control full-span">
-            <label for="observacionTraslado">Observación del traslado</label>
-            <textarea id="observacionTraslado" name="observacionTraslado" class="textarea-wide"
-              placeholder="Descripción detallada del estado del paciente, hallazgos clínicos relevantes y condiciones de traslado…"></textarea>
-          </div>
-        </div>
-        <div class="print-actions">
-          <button type="button" class="btn-secondary" onclick="window.print()">🖨 Imprimir ficha de traslado</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Actions -->
-    <div class="actions">
-      <button type="submit" class="btn-primary" style="flex:1; padding:14px;">
-        💾 Guardar Registro
-      </button>
-      <button type="button" class="btn-secondary" onclick="resetForm()">
-        Nueva consulta
-      </button>
-    </div>
-
-  </form>
-</div>
-
-<script>
-// ── API base detection ────────────────────────────────────────────────────────
-const API_BASE = window.location.pathname.startsWith('/camporeemedical') ? '/camporeemedical' : '';
-
-// ── Toast ─────────────────────────────────────────────────────────────────────
-let toastTimer = null;
-function showToast(msg, type = 'success') {
-  const toast = document.getElementById('toast');
-  const icon  = document.getElementById('toastIcon');
-  const text  = document.getElementById('toastMsg');
-  icon.textContent = type === 'success' ? '✓' : '✕';
-  text.textContent = msg;
-  toast.className = `toast ${type} show`;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
-}
-
-// ── Preset vitals ─────────────────────────────────────────────────────────────
-const PRESETS = {
-  normal:  { ta:'120/80', fc:'75', fr:'16', temp:'36.5', glucosa:'90', spo2:'98' },
-  febril:  { ta:'120/80', fc:'88', fr:'18', temp:'38.2', glucosa:'95', spo2:'97' },
-  hta:     { ta:'155/95', fc:'82', fr:'17', temp:'36.8', glucosa:'100', spo2:'97' },
-  limpiar: { ta:'', fc:'', fr:'', temp:'', glucosa:'', spo2:'' },
-};
-document.querySelectorAll('.preset-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const preset = PRESETS[btn.dataset.preset];
-    if (!preset) return;
-    Object.entries(preset).forEach(([k, v]) => {
-      const el = document.getElementById(k);
-      if (el) el.value = v;
+    trasladoCheckbox.addEventListener("change", () => {
+      ambulanciaSection.classList.toggle("hidden", !trasladoCheckbox.checked);
     });
-  });
-});
 
-// ── Chips ─────────────────────────────────────────────────────────────────────
-document.querySelectorAll('.chips').forEach(group => {
-  const target = group.dataset.target;
-  group.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      const el = document.getElementById(target);
-      if (!el) return;
-      const current = el.value.trim();
-      const val = chip.textContent.trim();
-      if (val === 'Ninguno' || val === 'Ninguna') { el.value = val; return; }
-      el.value = current && current !== 'Ninguno' && current !== 'Ninguna'
-        ? current + ', ' + val
-        : val;
+    presetButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const preset = btn.dataset.preset;
+        if (preset === "normal") {
+          form.ta.value = "120/80";
+          form.fc.value = "72";
+          form.fr.value = "16";
+          form.temp.value = "36.5";
+          form.glucosa.value = "90";
+          form.spo2.value = "98";
+        }
+        if (preset === "febril") {
+          form.ta.value = "120/80";
+          form.fc.value = "88";
+          form.fr.value = "18";
+          form.temp.value = "38.0";
+          form.glucosa.value = "100";
+          form.spo2.value = "97";
+        }
+      });
     });
-  });
-});
 
-// ── Age from DOB ──────────────────────────────────────────────────────────────
-document.getElementById('fechaNacimiento').addEventListener('change', function () {
-  if (!this.value) return;
-  const dob = new Date(this.value + 'T00:00:00');
-  const now = new Date();
-  let age = now.getFullYear() - dob.getFullYear();
-  const m = now.getMonth() - dob.getMonth();
-  if (m < 0 || (m === 0 && now.getDate() < dob.getDate())) age--;
-  document.getElementById('edad').value = age >= 0 ? age : '';
-});
-
-// ── "Otro" selects ────────────────────────────────────────────────────────────
-function toggleOtro(selectId, inputId) {
-  const sel = document.getElementById(selectId);
-  const inp = document.getElementById(inputId);
-  inp.style.display = sel.value === 'Otro' ? 'block' : 'none';
-}
-
-// ── Ambulance toggle ──────────────────────────────────────────────────────────
-document.getElementById('trasladoCheck').addEventListener('change', function () {
-  document.getElementById('ambulanciaSection').classList.toggle('visible', this.checked);
-});
-
-// ── Patient matching ──────────────────────────────────────────────────────────
-let currentPacienteId = null;
-let lookupDebounce = null;
-
-document.getElementById('nombreCompleto').addEventListener('blur', function () {
-  clearTimeout(lookupDebounce);
-  lookupDebounce = setTimeout(() => lookupPaciente(this.value), 300);
-});
-
-async function lookupPaciente(nombre) {
-  if (!nombre || nombre.trim().length < 3) {
-    hideBanner(); return;
-  }
-  try {
-    const res = await fetch(`${API_BASE}/api/pacientes/buscar?nombre=${encodeURIComponent(nombre.trim())}`);
-    const data = await res.json();
-    if (data.paciente) {
-      currentPacienteId = data.paciente.id;
-      showBanner(data.paciente, data.total_consultas, data.lastConsulta);
-    } else {
-      currentPacienteId = null;
-      hideBanner();
+    if (fechaNacimientoInput) {
+      fechaNacimientoInput.addEventListener("change", () => {
+        const val = fechaNacimientoInput.value;
+        if (!val) return;
+        const birth = new Date(val);
+        const now = new Date();
+        let age = now.getFullYear() - birth.getFullYear();
+        const m = now.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--;
+        edadInput.value = age >= 0 ? age : "";
+      });
     }
-  } catch (e) {
-    currentPacienteId = null;
-    hideBanner();
-  }
-}
 
-function showBanner(paciente, totalConsultas, lastConsulta) {
-  document.getElementById('matchNombre').textContent = paciente.nombre_completo;
-  document.getElementById('matchCount').textContent = totalConsultas;
-  document.getElementById('matchBanner').classList.add('visible');
-
-  // Auto-fill blood type if known
-  const tsEl = document.getElementById('tipoSangre');
-  if (paciente.tipo_sangre && !tsEl.value) tsEl.value = paciente.tipo_sangre;
-
-  // Auto-fill allergies and medications from last visit
-  if (lastConsulta) {
-    const mEl = document.getElementById('medicamentos');
-    const aEl = document.getElementById('alergias');
-    if (lastConsulta.medicamentos && !mEl.value) mEl.value = lastConsulta.medicamentos;
-    if (lastConsulta.alergias && !aEl.value) aEl.value = lastConsulta.alergias;
-  }
-
-  document.getElementById('btnVerHist').onclick = () => {
-    openTabla();
-    setTimeout(() => highlightPaciente(paciente.id), 400);
-  };
-}
-
-function hideBanner() {
-  document.getElementById('matchBanner').classList.remove('visible');
-}
-
-// ── Form submit ───────────────────────────────────────────────────────────────
-document.getElementById('regForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const form = e.target;
-
-  // Validation
-  const nombre = form.nombreCompleto.value.trim();
-  const numEm  = form.numeroEmergencia.value.trim();
-  const asoc   = form.asociacion.value;
-  const club   = form.club.value.trim();
-  if (!nombre || !numEm || !asoc || !club) {
-    showToast('Completa los campos obligatorios (*)','error'); return;
-  }
-
-  // Resolve "Otro" fields
-  let hospitalDestino = form.hospitalDestino.value;
-  if (hospitalDestino === 'Otro') hospitalDestino = form.hospitalDestinoOtro.value.trim();
-  let paramedico = form.paramedico.value;
-  if (paramedico === 'Otro') paramedico = form.paramedicoOtro.value.trim();
-
-  const payload = {
-    nombreCompleto:      nombre,
-    numeroEmergencia:    numEm,
-    fechaNacimiento:     form.fechaNacimiento.value,
-    edad:                form.edad.value,
-    asociacion:          asoc,
-    club,
-    tipoSangre:          form.tipoSangre.value,
-    ta:                  form.ta.value.trim(),
-    fc:                  form.fc.value.trim(),
-    fr:                  form.fr.value.trim(),
-    temp:                form.temp.value.trim(),
-    glucosa:             form.glucosa.value.trim(),
-    spo2:                form.spo2.value.trim(),
-    sintomas:            form.sintomas.value.trim(),
-    eventoPrevio:        form.eventoPrevio.value.trim(),
-    antecedentes:        form.antecedentes.value.trim(),
-    medicamentos:        form.medicamentos.value.trim(),
-    alergias:            form.alergias.value.trim(),
-    diagnostico:         form.diagnostico.value.trim(),
-    tx:                  form.tx.value.trim(),
-    indicaciones:        form.indicaciones.value.trim(),
-    medico:              form.medico.value.trim(),
-    requiereAmbulancia:  form.requiereAmbulancia.checked,
-    observacionTraslado: form.observacionTraslado.value.trim(),
-    hospitalDestino,
-    motivoTraslado:      form.motivoTraslado.value.trim(),
-    paramedico,
-    firmaMedico:         form.firmaMedico.value.trim(),
-    pacienteId:          currentPacienteId || undefined,
-  };
-
-  const btn = form.querySelector('[type="submit"]');
-  btn.disabled = true;
-  btn.textContent = 'Guardando…';
-
-  try {
-    const res  = await fetch(`${API_BASE}/api/registros`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+    const chipGroups = document.querySelectorAll(".chips");
+    chipGroups.forEach((group) => {
+      const targetId = group.dataset.target;
+      const targetInput = document.getElementById(targetId);
+      group.querySelectorAll(".chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          if (!targetInput) return;
+          const value = chip.textContent.trim();
+          const current = targetInput.value ? targetInput.value.split(",").map((s) => s.trim()).filter(Boolean) : [];
+          if (!current.includes(value)) current.push(value);
+          targetInput.value = current.join(", ");
+        });
+      });
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Error al guardar');
 
-    const consulta = data.numeroConsulta;
-    showToast(`✓ Registro guardado — Consulta #${consulta}`, 'success');
-    currentPacienteId = data.pacienteId;
+    const toggleOtro = (selectEl, otherInput) => {
+      if (!selectEl || !otherInput) return;
+      selectEl.addEventListener("change", () => {
+        const isOtro = selectEl.value.includes("Otro");
+        otherInput.classList.toggle("hidden", !isOtro);
+        if (!isOtro) otherInput.value = "";
+      });
+    };
+    toggleOtro(hospitalSelect, hospitalOtro);
+    toggleOtro(paramedicoSelect, paramedicoOtro);
 
-    // Update banner count
-    const cntEl = document.getElementById('matchCount');
-    if (cntEl) cntEl.textContent = consulta;
-    document.getElementById('matchBanner').classList.add('visible');
-    document.getElementById('matchNombre').textContent = nombre;
-
-  } catch (err) {
-    showToast(err.message, 'error');
-  } finally {
-    btn.disabled = false;
-    btn.textContent = '💾 Guardar Registro';
-  }
-});
-
-// ── Reset form ────────────────────────────────────────────────────────────────
-function resetForm() {
-  if (!confirm('¿Iniciar una nueva consulta? Se limpiarán todos los campos.')) return;
-  document.getElementById('regForm').reset();
-  document.getElementById('ambulanciaSection').classList.remove('visible');
-  document.getElementById('hospitalOtro').style.display = 'none';
-  document.getElementById('paramedicoOtro').style.display = 'none';
-  hideBanner();
-  currentPacienteId = null;
-}
-
-// ── Table modal ───────────────────────────────────────────────────────────────
-let allPacientes = [];
-
-function openTabla() {
-  document.getElementById('tablaModal').classList.add('open');
-  document.getElementById('tablaSearch').value = '';
-  loadPacientes();
-}
-function closeTabla() { document.getElementById('tablaModal').classList.remove('open'); }
-function overlayClick(e) { if (e.target === e.currentTarget) closeTabla(); }
-
-async function loadPacientes(q = '') {
-  document.getElementById('tablaList').innerHTML = '<div class="empty-state"><p>Cargando…</p></div>';
-  try {
-    const url = q ? `${API_BASE}/api/pacientes?q=${encodeURIComponent(q)}` : `${API_BASE}/api/pacientes`;
-    const res = await fetch(url);
-    allPacientes = await res.json();
-    renderPacientes(allPacientes);
-  } catch (e) {
-    document.getElementById('tablaList').innerHTML = '<div class="empty-state"><p>Error al cargar datos.</p></div>';
-  }
-}
-
-let filterTimer = null;
-function filterTabla(q) {
-  clearTimeout(filterTimer);
-  filterTimer = setTimeout(() => loadPacientes(q), 350);
-}
-
-function renderPacientes(list) {
-  const stats = document.getElementById('tablaStats');
-  const cont  = document.getElementById('tablaList');
-  stats.textContent = `${list.length} paciente(s) encontrado(s)`;
-  if (!list.length) {
-    cont.innerHTML = `<div class="empty-state">
-      <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-      <p>No se encontraron pacientes</p>
-    </div>`;
-    return;
-  }
-  cont.innerHTML = list.map(p => pacienteCard(p)).join('');
-}
-
-function pacienteCard(p) {
-  const fecha = p.ultima_consulta
-    ? new Date(p.ultima_consulta).toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'numeric' })
-    : '—';
-  return `
-  <div class="paciente-card" id="pcard-${p.id}">
-    <div class="paciente-header" onclick="toggleConsultas(${p.id})">
-      <div>
-        <div class="paciente-nombre">${esc(p.nombre_completo)}</div>
-        <div class="paciente-meta">
-          ${p.asociacion ? `<span>📍 ${esc(p.asociacion)}</span>` : ''}
-          ${p.club ? `<span>🏕 ${esc(p.club)}</span>` : ''}
-          ${p.tipo_sangre ? `<span>🩸 ${esc(p.tipo_sangre)}</span>` : ''}
-          ${p.fecha_nacimiento ? `<span>🎂 ${esc(p.fecha_nacimiento)}</span>` : ''}
-          <span>🕐 Última: ${fecha}</span>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span class="badge-consultas">${p.total_consultas} consulta(s)</span>
-        <span class="chevron">▼</span>
-      </div>
-    </div>
-    <div class="consultas-list" id="clist-${p.id}">
-      <div style="padding:16px;color:var(--muted);font-size:13px;">Cargando consultas…</div>
-    </div>
-  </div>`;
-}
-
-async function toggleConsultas(id) {
-  const card = document.getElementById(`pcard-${id}`);
-  const list = document.getElementById(`clist-${id}`);
-  const isOpen = card.classList.contains('expanded');
-  card.classList.toggle('expanded', !isOpen);
-  if (!isOpen) {
-    await loadConsultas(id, list);
-  }
-}
-
-async function loadConsultas(id, container) {
-  try {
-    const res = await fetch(`${API_BASE}/api/pacientes/${id}/consultas`);
-    const consultas = await res.json();
-    if (!consultas.length) {
-      container.innerHTML = '<div style="padding:16px;color:var(--muted);">Sin consultas registradas.</div>';
-      return;
+    if (printBtn) {
+      printBtn.addEventListener("click", () => {
+        window.print();
+      });
     }
-    container.innerHTML = consultas.map(c => consultaItem(c)).join('');
-  } catch (e) {
-    container.innerHTML = '<div style="padding:16px;color:var(--danger);">Error al cargar consultas.</div>';
-  }
-}
 
-function consultaItem(c) {
-  const fecha = c.created_at
-    ? new Date(c.created_at).toLocaleDateString('es-MX', { weekday:'short', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })
-    : '—';
-  const vitals = [
-    c.ta ? `TA ${c.ta}` : null,
-    c.fc ? `FC ${c.fc}` : null,
-    c.fr ? `FR ${c.fr}` : null,
-    c.temp ? `T° ${c.temp}` : null,
-    c.glucosa ? `Gluc ${c.glucosa}` : null,
-    c.spo2 ? `SpO₂ ${c.spo2}%` : null,
-  ].filter(Boolean);
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.requiereAmbulancia = trasladoCheckbox.checked;
+      if (data.hospitalDestino === "Otro (especificar abajo)") {
+        data.hospitalDestino = data.hospitalDestinoOtro || "";
+      }
+      if (data.paramedico === "Otro (especificar abajo)") {
+        data.paramedico = data.paramedicoOtro || "";
+      }
 
-  return `
-  <div class="consulta-item">
-    <div class="consulta-item-header">
-      <span class="consulta-num">Consulta #${c.numero_consulta || 1}</span>
-      <span class="consulta-fecha">${fecha}</span>
-    </div>
-    <div class="consulta-fields">
-      ${c.sintomas ? `<div class="cf"><label>Síntomas</label><div class="val">${esc(c.sintomas)}</div></div>` : ''}
-      ${c.diagnostico ? `<div class="cf key"><label>Diagnóstico</label><div class="val">${esc(c.diagnostico)}</div></div>` : ''}
-      ${c.medicamentos ? `<div class="cf key"><label>Medicamentos recetados</label><div class="val">${esc(c.medicamentos)}</div></div>` : ''}
-      ${c.tx ? `<div class="cf key"><label>Tratamiento (TX)</label><div class="val">${esc(c.tx)}</div></div>` : ''}
-      ${c.indicaciones ? `<div class="cf"><label>Indicaciones</label><div class="val">${esc(c.indicaciones)}</div></div>` : ''}
-      ${c.medico ? `<div class="cf"><label>Médico</label><div class="val">${esc(c.medico)}</div></div>` : ''}
-      ${c.alergias ? `<div class="cf"><label>Alergias</label><div class="val">${esc(c.alergias)}</div></div>` : ''}
-      ${c.antecedentes ? `<div class="cf"><label>Antecedentes</label><div class="val">${esc(c.antecedentes)}</div></div>` : ''}
-    </div>
-    ${vitals.length ? `<div class="vitals-strip">${vitals.map(v=>`<span class="vital-tag">${v}</span>`).join('')}</div>` : ''}
-    ${c.requiereambulancia || c.requiereAmbulancia ? `<div class="traslado-badge">🚑 Traslado en ambulancia${c.hospitalDestino || c.hospitaldestino ? ' → ' + esc(c.hospitalDestino || c.hospitaldestino) : ''}</div>` : ''}
-  </div>`;
-}
+      try {
+        const resp = await fetch("/api/registros", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        if (!resp.ok) throw new Error("Respuesta no exitosa");
+      } catch (err) {
+        console.warn("No se pudo enviar al backend (modo offline).", err);
+      }
 
-function highlightPaciente(id) {
-  const card = document.getElementById(`pcard-${id}`);
-  if (!card) return;
-  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  card.style.borderColor = 'var(--success)';
-  setTimeout(() => { card.style.borderColor = ''; }, 2000);
-  if (!card.classList.contains('expanded')) toggleConsultas(id);
-}
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-function esc(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-</script>
+      alert("Datos guardados");
+      form.reset();
+      ambulanciaSection.classList.add("hidden");
+    });
+  </script>
 </body>
 </html>
