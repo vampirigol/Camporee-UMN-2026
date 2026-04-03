@@ -667,14 +667,16 @@ function resetForm() {
 // ── Autocomplete ──────────────────────────────────────────────────────────────
 const _acCache = {};
 
-async function fetchSugerencias(tipo) {
-  if (_acCache[tipo]) return _acCache[tipo];
+async function fetchSugerencias(tipo, extraParams = {}) {
+  const cacheKey = tipo + JSON.stringify(extraParams);
+  if (_acCache[cacheKey]) return _acCache[cacheKey];
   try {
-    const r = await fetch(`${API_BASE}/api/sugerencias?tipo=${tipo}`);
-    const d = await r.json();
-    _acCache[tipo] = Array.isArray(d) ? d : [];
-  } catch (_) { _acCache[tipo] = []; }
-  return _acCache[tipo];
+    const qs = new URLSearchParams({ tipo, ...extraParams }).toString();
+    const r  = await fetch(`${API_BASE}/api/sugerencias?${qs}`);
+    const d  = await r.json();
+    _acCache[cacheKey] = Array.isArray(d) ? d : [];
+  } catch (_) { _acCache[cacheKey] = []; }
+  return _acCache[cacheKey];
 }
 
 function highlight(text, q) {
@@ -683,7 +685,7 @@ function highlight(text, q) {
   return text.replace(new RegExp(`(${safe})`, 'gi'), '<mark>$1</mark>');
 }
 
-function createAutocomplete({ inputId, dropId, tipo, icon }) {
+function createAutocomplete({ inputId, dropId, tipo, icon, getExtraParams }) {
   const input = document.getElementById(inputId);
   const drop  = document.getElementById(dropId);
   let activeIdx = -1;
@@ -698,7 +700,7 @@ function createAutocomplete({ inputId, dropId, tipo, icon }) {
     currentItems = items;
     activeIdx = -1;
     if (!items.length) {
-      drop.innerHTML = `<div class="ac-empty">Sin sugerencias aún</div>`;
+      drop.innerHTML = `<div class="ac-empty">Sin sugerencias para esta asociación aún</div>`;
     } else {
       drop.innerHTML = items.map((item, i) =>
         `<div class="ac-item" data-idx="${i}">
@@ -715,12 +717,13 @@ function createAutocomplete({ inputId, dropId, tipo, icon }) {
   }
 
   async function update() {
-    const q    = input.value.trim();
-    const list = await fetchSugerencias(tipo);
-    const filtered = q.length === 0
-      ? list.slice(0, 10)
-      : list.filter(s => s.toLowerCase().includes(q.toLowerCase())).slice(0, 8);
-    if (filtered.length === 0 && q.length < 2) { closeAll(); return; }
+    const q           = input.value.trim();
+    const extraParams = getExtraParams ? getExtraParams() : {};
+    const list        = await fetchSugerencias(tipo, extraParams);
+    const filtered    = q.length === 0
+      ? list.slice(0, 12)
+      : list.filter(s => s.toLowerCase().includes(q.toLowerCase())).slice(0, 10);
+    if (filtered.length === 0 && q.length < 1) { closeAll(); return; }
     render(filtered, q);
   }
 
@@ -751,10 +754,28 @@ function createAutocomplete({ inputId, dropId, tipo, icon }) {
   document.addEventListener('click', e => {
     if (!input.contains(e.target) && !drop.contains(e.target)) closeAll();
   });
+
+  return { update, closeAll };
 }
 
-createAutocomplete({ inputId: 'club',   dropId: 'acClub',   tipo: 'club',   icon: '🏕' });
+const acClub = createAutocomplete({
+  inputId: 'club', dropId: 'acClub', tipo: 'club', icon: '🏕',
+  getExtraParams: () => {
+    const asoc = document.getElementById('asociacion').value;
+    return asoc ? { asociacion: asoc } : {};
+  }
+});
+
 createAutocomplete({ inputId: 'medico', dropId: 'acMedico', tipo: 'medico', icon: '🩺' });
+
+// Al cambiar la asociación: limpiar club y refrescar sus sugerencias
+document.getElementById('asociacion').addEventListener('change', function () {
+  const clubInput = document.getElementById('club');
+  clubInput.value = '';
+  // Pre-cargar sugerencias de la nueva asociación en background
+  const asoc = this.value;
+  if (asoc) fetchSugerencias('club', { asociacion: asoc });
+});
 </script>
 </body>
 </html>

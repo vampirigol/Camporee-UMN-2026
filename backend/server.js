@@ -64,11 +64,15 @@ app.get("/api/sugerencias", async (req, res) => {
   const col = allowed[req.query.tipo];
   if (!col) return res.status(400).json({ error: "tipo inválido" });
   try {
-    const { rows } = await pool.query(
-      `SELECT DISTINCT ${col} AS val FROM registros
-       WHERE ${col} IS NOT NULL AND ${col} NOT IN ('','N/D','N/A','-','NINGUNA')
-       ORDER BY val LIMIT 120`
-    );
+    const base = `WHERE ${col} IS NOT NULL AND ${col} NOT IN ('','N/D','N/A','-','NINGUNA')`;
+    let query, params = [];
+    if (col === "club" && req.query.asociacion) {
+      query = `SELECT DISTINCT club AS val FROM registros ${base} AND asociacion = $1 ORDER BY val LIMIT 150`;
+      params = [req.query.asociacion];
+    } else {
+      query = `SELECT DISTINCT ${col} AS val FROM registros ${base} ORDER BY val LIMIT 150`;
+    }
+    const { rows } = await pool.query(query, params);
     res.json(rows.map(r => r.val).filter(Boolean));
   } catch (e) {
     res.status(500).json({ error: e.message });
