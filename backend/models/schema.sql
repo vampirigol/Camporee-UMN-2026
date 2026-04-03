@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS registros (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id SERIAL PRIMARY KEY,
   nombreCompleto TEXT NOT NULL,
   numeroEmergencia TEXT NOT NULL,
   fechaNacimiento TEXT,
@@ -21,11 +21,11 @@ CREATE TABLE IF NOT EXISTS registros (
   tx TEXT,
   indicaciones TEXT,
   medico TEXT,
-  requiereAmbulancia INTEGER DEFAULT 0,
+  requiereAmbulancia BOOLEAN DEFAULT FALSE,
   observacionTraslado TEXT,
   hospitalDestino TEXT,
   motivoTraslado TEXT,
   paramedico TEXT,
   firmaMedico TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );

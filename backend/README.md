@@ -2,6 +2,21 @@
 
 ## Requisitos
 - Node.js 18+
+- Base de datos PostgreSQL (Railway o local)
+
+## Configuración de entorno
+Usa `DATABASE_URL` (Railway la provee) o variables `PG*`:
+```
+PORT=3000
+PGHOST=localhost
+PGPORT=5432
+PGUSER=postgres
+PGPASSWORD=postgres
+PGDATABASE=camporee
+PGSSLMODE=disable
+# o bien:
+# DATABASE_URL=postgresql://usuario:pass@host:5432/base?sslmode=require
+```
 
 ## Instalación
 ```bash
@@ -20,5 +35,4 @@ npm start
 - `GET /api/registros` — lista los últimos 200 registros.
 
 ## Base de datos
-- SQLite en `camporee.db`.
-- Esquema en `models/schema.sql`; se aplica automáticamente al iniciar.
+- PostgreSQL (usa `models/schema.sql`); el esquema se aplica automáticamente al iniciar.
